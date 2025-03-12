@@ -667,3 +667,204 @@ label:hover {
   border-radius: 3px;
   font-weight: 500;
 }
+/* Modification du layout de la grille pour améliorer la lisibilité */
+
+/* Réduire à 2 colonnes par défaut pour les écrans moyens et grands */
+#fiches-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Sur très grands écrans (>1600px), permettre 3 colonnes */
+@media (min-width: 1600px) {
+  #fiches-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Sur mobile, une seule colonne */
+@media (max-width: 768px) {
+  #fiches-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Style vertical pour les vignettes au lieu de horizontal */
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.tool-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(76, 175, 80, 0.15);
+}
+
+/* Partie supérieure (anciennement gauche) redessinée */
+.card-left {
+  padding: 25px 20px;
+  background: linear-gradient(to bottom, #f8f9fa, #e8f5e9);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Logo centré */
+.tool-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Style pour les badges de catégorie et filtres */
+.tool-category {
+  background: #4caf50;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.match-info {
+  background: #f0f0f0;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  color: #555;
+  margin-top: 5px;
+}
+
+/* Partie inférieure (anciennement droite) avec plus d'espace */
+.card-right {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Titre avec meilleure lisibilité */
+.tool-title {
+  font-size: 22px;
+  color: #2e7d32;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+/* Description plus lisible */
+.tool-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Encadré d'informations */
+.highlight-box {
+  background: #f9f9f9;
+  padding: 15px;
+  border-left: 4px solid #4caf50;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+
+.highlight-box p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+/* Bouton centré */
+.cta-button {
+  background: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  align-self: center;
+  margin-top: 15px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+.cta-button:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+}
+
+/* Style pour la mise en surbrillance des résultats de recherche */
+.highlight-match {
+  background-color: #FFEB3B;
+  color: #333;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Pour le mode sombre */
+.dark-mode .tool-card {
+  background: #2d2d2d;
+  border-color: #333;
+}
+
+.dark-mode .card-left {
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .tool-logo {
+  background: #222;
+}
+
+.dark-mode .card-right {
+  background: #2d2d2d;
+}
+
+.dark-mode .highlight-box {
+  background: #333;
+  border-left-color: #66bb6a;
+}
+
+.dark-mode .tool-title {
+  color: #66bb6a;
+}
+
+.dark-mode .tool-description {
+  color: #ddd;
+}
+
+.dark-mode .match-info {
+  background: #333;
+  color: #ddd;
+}
+
+.dark-mode .highlight-box p {
+  color: #ddd;
+}
