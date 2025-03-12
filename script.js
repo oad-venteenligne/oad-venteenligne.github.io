@@ -299,8 +299,6 @@ document.addEventListener("DOMContentLoaded", function() {
            text.substring(index + searchTerm.length);
   }
 
-// Modification de la fonction renderCard pour améliorer la structure HTML
-
 function renderCard(item, isMatched, totalActiveFilters) {
   const searchTerm = document.querySelector('#search-input').value.trim();
   
@@ -344,7 +342,7 @@ function renderCard(item, isMatched, totalActiveFilters) {
     matchedCount++;
   }
   
-  // Créer la carte avec structure améliorée
+  // Créer la carte avec structure verticale
   const card = document.createElement("div");
   card.className = isMatched ? "tool-card" : "tool-card unmatched";
   card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
@@ -359,10 +357,8 @@ function renderCard(item, isMatched, totalActiveFilters) {
       }
     </div>
     <div class="card-right">
-      <div>
-        <h2 class="tool-title">${highlightedTitle}</h2>
-        <p class="tool-description">${highlightedDescription}</p>
-      </div>
+      <h2 class="tool-title">${highlightedTitle}</h2>
+      <p class="tool-description">${highlightedDescription}</p>
       <div class="highlight-box">
         <p><strong>Année de création :</strong> ${anneeCreation}</p>
         <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
