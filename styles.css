@@ -1,0 +1,489 @@
+/* Styles généraux du contenu */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+.custom-content {
+  background: linear-gradient(135deg, #f9f9f9, #e8f5e9);
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1200px;
+  position: relative;
+}
+
+/* Layout en deux colonnes pour les écrans larges */
+.layout {
+  display: flex;
+  gap: 20px;
+}
+
+.sidebar {
+  flex: 0 0 300px; /* Largeur fixe pour la colonne des filtres */
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Sur mobile, le layout passe en colonne (les filtres en haut) */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+}
+
+/* Titre principal */
+h1 {
+  margin-top: 20px;
+  text-align: center;
+  color: #2e7d32;
+}
+
+/* Conteneur des fiches en grille : 2 colonnes par défaut */
+#fiches-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Sur grand écran, 3 colonnes */
+@media (min-width: 1200px) {
+  #fiches-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Sur mobile, une seule colonne */
+@media (max-width: 768px) {
+  #fiches-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Styles des fiches (cards) */
+.tool-card {
+  display: flex;
+  max-width: 550px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              box-shadow 0.3s ease;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.tool-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.tool-card:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 5%;
+  width: 90%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.tool-card:hover:after {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-left {
+  padding: 16px;
+  background-color: #f5f5f5;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-logo {
+  max-width: 100px;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
+}
+
+.tool-card:hover .tool-logo {
+  transform: scale(1.05);
+}
+
+.tool-category {
+  background-color: #FFCC00;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Zone d'affichage du nombre de filtres correspondants */
+.match-info {
+  position: relative;
+  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+  border-radius: 16px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #555;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.card-right {
+  flex: 2;
+  padding: 20px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.highlight-box {
+  background: #f9f9f9;
+  padding: 12px;
+  border-left: 4px solid #4caf50;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.tool-title {
+  font-size: 24px;
+  color: #333;
+  font-weight: bold;
+  margin: 0;
+}
+
+.tool-description {
+  font-size: 14px;
+  color: #555;
+  margin: 10px 0;
+  line-height: 1.4;
+}
+
+.highlight-match {
+  background-color: #FFEB3B;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.cta-button {
+  background: #4caf50;
+  color: white;
+  padding: 8px 16px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: background 0.3s ease, transform 0.2s ease;
+  align-self: flex-start;
+}
+
+.cta-button:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+}
+
+/* Style pour les fiches ne correspondant pas aux filtres */
+.tool-card.unmatched {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+/* Styles pour les filtres */
+#filters {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  background: #f0f7f0;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  border-left: 4px solid #4caf50;
+  transition: all 0.2s ease;
+}
+
+.filter-header:hover {
+  background: #e0f0e0;
+}
+
+.filter-content {
+  display: none;
+  padding: 12px;
+  border-left: 4px solid #e8e8e8;
+  margin-left: 4px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Style pour la barre de recherche */
+.search-container {
+  margin-bottom: 20px;
+}
+
+#search-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+#search-input:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  outline: none;
+}
+
+/* Style pour les checkbox et radio buttons */
+input[type="checkbox"], input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: #4caf50;
+}
+
+label {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+label:hover {
+  opacity: 0.8;
+}
+
+/* Style pour la carte de France cliquable */
+.department-map {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+#france-map {
+  width: 100%;
+  height: auto;
+}
+
+#france-map path {
+  fill: #E8F5E9;
+  stroke: #4caf50;
+  stroke-width: 1px;
+  cursor: pointer;
+  transition: fill 0.2s ease;
+}
+
+#france-map path:hover {
+  fill: #C8E6C9;
+}
+
+#france-map path.selected {
+  fill: #4CAF50;
+}
+
+.selected-departments {
+  font-size: 12px;
+  margin-top: 10px;
+  color: #666;
+}
+
+/* Indicateur de chargement */
+.loader {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(76,175,80,0.3);
+  border-radius: 50%;
+  border-top-color: #4caf50;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-container {
+  text-align: center;
+  padding: 50px 0;
+}
+
+/* Bouton d'export */
+.export-button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.export-button:before {
+  content: "⬇️";
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.export-button:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Compteur de résultats */
+#results-stats {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Mode sombre */
+.dark-mode-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  z-index: 10;
+}
+
+.dark-mode-toggle:hover {
+  background-color: rgba(0,0,0,0.1);
+}
+
+.dark-mode .dark-mode-toggle:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.dark-mode {
+  background: #121212;
+}
+
+.dark-mode .custom-content {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  color: #e0e0e0;
+}
+
+.dark-mode #filters {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.dark-mode .tool-card {
+  background: #2d2d2d;
+}
+
+.dark-mode .card-left {
+  background: #1a1a1a;
+}
+
+.dark-mode .card-right {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.dark-mode .tool-title {
+  color: #ffffff;
+}
+
+.dark-mode .tool-description {
+  color: #bbbbbb;
+}
+
+.dark-mode .highlight-box {
+  background: #383838;
+  border-left: 4px solid #66bb6a;
+}
+
+.dark-mode .filter-header {
+  background: #383838;
+  color: #e0e0e0;
+}
+
+.dark-mode .filter-header:hover {
+  background: #404040;
+}
+
+.dark-mode input[type="text"] {
+  background: #383838;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+/* Gestion du layout sur mobile */
+@media (max-width: 576px) {
+  .tool-card {
+    flex-direction: column;
+  }
+  
+  .card-left {
+    padding: 20px 10px;
+    width: 100%;
+  }
+  
+  .card-right {
+    padding: 15px;
+  }
+  
+  .tool-title {
+    font-size: 20px;
+  }
+  
+  .export-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
