@@ -487,3 +487,183 @@ label:hover {
     justify-content: center;
   }
 }
+/* Styles améliorés pour les vignettes (cards) */
+
+/* Carte principale avec shadow et bordure plus subtile */
+.tool-card {
+  display: flex;
+  max-width: 550px;
+  width: 100%;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f0f0f0;
+  margin-bottom: 10px;
+}
+
+.tool-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(76, 175, 80, 0.15);
+}
+
+/* Partie gauche redessinée avec meilleur espacement */
+.card-left {
+  padding: 20px 15px;
+  background: linear-gradient(to bottom, #f8f9fa, #e8f5e9);
+  text-align: center;
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #f0f0f0;
+}
+
+/* Image du logo améliorée */
+.tool-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.tool-card:hover .tool-logo {
+  transform: scale(1.05);
+}
+
+/* Catégorie plus visible et stylisée */
+.tool-category {
+  background: #4caf50;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
+}
+
+/* Affichage du nombre de filtres plus élégant */
+.match-info {
+  margin-top: 12px;
+  background: #f5f5f5;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: #555;
+  border: 1px solid #e0e0e0;
+}
+
+/* Partie droite de la carte avec meilleur espacement et hiérarchie visuelle */
+.card-right {
+  flex: 1;
+  padding: 25px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Titre plus grand et avec une couleur plus impactante */
+.tool-title {
+  font-size: 24px;
+  color: #2e7d32;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+
+/* Description plus lisible */
+.tool-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+  margin: 0 0 15px 0;
+}
+
+/* Encadré d'informations plus structuré */
+.highlight-box {
+  background: #f9fbf9;
+  padding: 15px;
+  border-left: 4px solid #4caf50;
+  border-radius: 8px;
+  margin: 15px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.highlight-box p {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.highlight-box strong {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* Bouton d'action plus attractif */
+.cta-button {
+  background: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.cta-button:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* Adaptation pour les écrans mobiles */
+@media (max-width: 768px) {
+  .tool-card {
+    flex-direction: column;
+  }
+  
+  .card-left {
+    padding: 25px 15px;
+    width: 100%;
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .tool-logo {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Amélioration de l'accessibilité */
+.tool-card:focus {
+  outline: 2px solid #4caf50;
+  outline-offset: 2px;
+}
+
+/* Style spécifique pour la mise en surbrillance des résultats de recherche */
+.highlight-match {
+  background-color: #FFEB3B;
+  color: #333;
+  padding: 0 3px;
+  border-radius: 3px;
+  font-weight: 500;
+}
