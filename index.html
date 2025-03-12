@@ -21,42 +21,19 @@
             <input type="text" id="search-input" class="form-control" placeholder="Rechercher un outil..." />
           </div>
           
-<!-- HTML mis à jour pour la section de la carte des régions -->
+// 1. HTML pour le filtre avec le SVG externe
+
 <div class="filter-header" data-target="filter-departments">
   <span>Filtrer par région</span>
   <span>⬇️</span>
 </div>
 <div id="filter-departments" class="filter-content">
-  <!-- Carte des régions de France -->
   <div class="department-map">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" id="france-map">
-      <!-- Hauts-de-France -->
-      <path id="region-hdf" d="M266,60 L320,50 L360,80 L340,120 L330,140 L300,155 L260,170 L250,140 L235,115 L240,90 Z" data-name="Hauts-de-France" data-code="HDF" />
-      <!-- Île-de-France -->
-      <path id="region-idf" d="M280,170 L340,160 L355,190 L335,210 L310,215 L285,200 Z" data-name="Île-de-France" data-code="IDF" />
-      <!-- Normandie -->
-      <path id="region-nor" d="M170,130 L240,120 L245,140 L235,170 L200,180 L180,155 Z" data-name="Normandie" data-code="NOR" />
-      <!-- Grand Est -->
-      <path id="region-est" d="M340,120 L370,120 L410,130 L440,150 L440,180 L420,210 L380,230 L355,190 L340,160 L340,140 Z" data-name="Grand Est" data-code="EST" />
-      <!-- Bretagne -->
-      <path id="region-bzh" d="M70,170 L105,150 L140,155 L170,180 L150,195 L120,200 L80,180 Z" data-name="Bretagne" data-code="BZH" />
-      <!-- Pays de la Loire -->
-      <path id="region-pdl" d="M170,180 L200,180 L235,170 L260,200 L240,230 L200,240 L170,215 L155,195 Z" data-name="Pays de la Loire" data-code="PDL" />
-      <!-- Centre-Val de Loire -->
-      <path id="region-cvl" d="M260,170 L285,200 L310,215 L300,245 L265,260 L240,230 L260,200 Z" data-name="Centre-Val de Loire" data-code="CVL" />
-      <!-- Bourgogne-Franche-Comté -->
-      <path id="region-bfc" d="M355,190 L380,230 L420,210 L420,240 L390,270 L360,290 L330,275 L330,240 L340,210 Z" data-name="Bourgogne-Franche-Comté" data-code="BFC" />
-      <!-- Nouvelle-Aquitaine -->
-      <path id="region-na" d="M155,195 L170,215 L200,240 L240,230 L265,260 L240,310 L210,370 L170,390 L120,370 L100,330 L130,270 L120,230 Z" data-name="Nouvelle-Aquitaine" data-code="NA" />
-      <!-- Auvergne-Rhône-Alpes -->
-      <path id="region-ara" d="M330,240 L330,275 L360,290 L390,270 L410,285 L400,315 L370,360 L340,370 L310,350 L300,320 L280,310 L295,280 L290,250 L300,245 Z" data-name="Auvergne-Rhône-Alpes" data-code="ARA" />
-      <!-- Occitanie -->
-      <path id="region-occ" d="M170,390 L210,370 L240,310 L265,260 L300,310 L280,310 L295,280 L290,250 L310,350 L330,385 L310,410 L270,425 L220,425 L190,405 Z" data-name="Occitanie" data-code="OCC" />
-      <!-- Provence-Alpes-Côte d'Azur -->
-      <path id="region-paca" d="M370,360 L400,315 L410,330 L430,350 L450,355 L430,380 L400,400 L360,410 L330,385 L310,350 L340,370 Z" data-name="Provence-Alpes-Côte d'Azur" data-code="PACA" />
-      <!-- Corse -->
-      <path id="region-cor" d="M460,420 L480,410 L495,430 L480,450 L460,445 Z" data-name="Corse" data-code="COR" />
-    </svg>
+    <!-- Iframe pour charger le SVG externe -->
+    <object id="france-map" data="https://static.opendatasoft.com/georef/svg/fr/reg_fxx.svg" type="image/svg+xml"></object>
+    
+    <!-- Alternative : si vous préférez héberger le fichier vous-même -->
+    <!-- <object id="france-map" data="assets/reg_fxx.svg" type="image/svg+xml"></object> -->
   </div>
   <div class="selected-departments">
     <p><strong>Régions sélectionnées:</strong> <span id="selected-dept-list">Aucune</span></p>
