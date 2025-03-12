@@ -90,7 +90,7 @@ function initRegionMap() {
   let regionFeatures = {};
   
   // Charger le fichier GeoJSON
-  fetch('chemin/vers/votre/fichier.geojson')
+  fetch('https://france-geojson.gregoiredavid.fr/repo/regions.geojson')
     .then(response => {
       if (!response.ok) {
         throw new Error('Impossible de charger le fichier GeoJSON');
