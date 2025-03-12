@@ -37,111 +37,151 @@ document.addEventListener("DOMContentLoaded", function() {
   // Initialiser les événements de la carte
   initRegionMap();
   
-// Tableau de correspondance entre les codes des régions SVG et vos codes
-const regionMappings = {
-  "reg-01": { code: "GES", name: "Grand Est" },
-  "reg-02": { code: "HDF", name: "Hauts-de-France" },
-  "reg-03": { code: "NOR", name: "Normandie" },
-  "reg-04": { code: "IDF", name: "Île-de-France" },
-  "reg-06": { code: "PDL", name: "Pays de la Loire" },
-  "reg-11": { code: "BRE", name: "Bretagne" },
-  "reg-24": { code: "CVL", name: "Centre-Val de Loire" },
-  "reg-27": { code: "BFC", name: "Bourgogne-Franche-Comté" },
-  "reg-28": { code: "NAQ", name: "Nouvelle-Aquitaine" },
-  "reg-32": { code: "OCC", name: "Occitanie" },
-  "reg-44": { code: "ARA", name: "Auvergne-Rhône-Alpes" },
-  "reg-76": { code: "PAC", name: "Provence-Alpes-Côte d'Azur" },
-  "reg-94": { code: "COR", name: "Corse" }
-};
-
 function initRegionMap() {
-  const mapObject = document.getElementById('france-map');
+  // Créer la carte Leaflet centrée sur la France
+  const map = L.map('map-container').setView([46.603354, 1.888334], 5);
   
-  // Attendre que le SVG soit chargé
-  mapObject.addEventListener('load', function() {
-    // Accéder au contenu SVG
-    const svgDoc = mapObject.contentDocument;
-    
-    // Pour chaque région dans le SVG
-    Object.keys(regionMappings).forEach(svgId => {
-      const path = svgDoc.getElementById(svgId);
-      if (path) {
-        // Appliquer des styles initiaux
-        path.style.fill = "#E8F5E9";
-        path.style.stroke = "#4caf50";
-        path.style.strokeWidth = "1.5px";
-        path.style.cursor = "pointer";
-        path.style.transition = "all 0.2s ease";
-        
-        // Ajouter les attributs data-
-        path.setAttribute('data-code', regionMappings[svgId].code);
-        path.setAttribute('data-name', regionMappings[svgId].name);
-        
-        // Gérer le survol
-        path.addEventListener('mouseenter', function() {
-          path.style.fill = "#C8E6C9";
-          path.style.strokeWidth = "2px";
-        });
-        
-        path.addEventListener('mouseleave', function() {
-          if (!selectedDepartments.includes(regionMappings[svgId].code)) {
-            path.style.fill = "#E8F5E9";
-            path.style.strokeWidth = "1.5px";
-          }
-        });
-        
-        // Gérer le clic
-        path.addEventListener('click', function() {
-          const regionCode = regionMappings[svgId].code;
-          const regionName = regionMappings[svgId].name;
-          
-          if (selectedDepartments.includes(regionCode)) {
-            // Désélectionner la région
-            selectedDepartments = selectedDepartments.filter(d => d !== regionCode);
-            path.style.fill = "#E8F5E9";
-          } else {
-            // Sélectionner la région
-            selectedDepartments.push(regionCode);
-            path.style.fill = "#4CAF50";
-          }
-          
-          updateSelectedDepartmentsList();
-          updateDisplay();
-        });
-        
-        // Appliquer les sélections existantes
-        if (selectedDepartments.includes(regionMappings[svgId].code)) {
-          path.style.fill = "#4CAF50";
-        }
+  // Ajouter une couche de tuiles OpenStreetMap (fond de carte)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  
+  // Définir le style par défaut des régions
+  function defaultStyle() {
+    return {
+      fillColor: '#E8F5E9',
+      weight: 1.5,
+      opacity: 1,
+      color: '#4caf50',
+      fillOpacity: 0.7
+    };
+  }
+  
+  // Définir le style des régions sélectionnées
+  function selectedStyle() {
+    return {
+      fillColor: '#4CAF50',
+      weight: 2,
+      opacity: 1,
+      color: '#2E7D32',
+      fillOpacity: 0.8
+    };
+  }
+  
+  // Tableau de correspondance entre les codes des régions GeoJSON et vos codes
+  const regionMappings = {
+    "84": { code: "ARA", name: "Auvergne-Rhône-Alpes" },
+    "27": { code: "BFC", name: "Bourgogne-Franche-Comté" },
+    "53": { code: "BRE", name: "Bretagne" },
+    "24": { code: "CVL", name: "Centre-Val de Loire" },
+    "94": { code: "COR", name: "Corse" },
+    "44": { code: "GES", name: "Grand Est" },
+    "32": { code: "HDF", name: "Hauts-de-France" },
+    "11": { code: "IDF", name: "Île-de-France" },
+    "28": { code: "NOR", name: "Normandie" },
+    "75": { code: "NAQ", name: "Nouvelle-Aquitaine" },
+    "76": { code: "OCC", name: "Occitanie" },
+    "52": { code: "PDL", name: "Pays de la Loire" },
+    "93": { code: "PAC", name: "Provence-Alpes-Côte d'Azur" }
+  };
+  
+  // Variable pour stocker la couche GeoJSON et les entités régionales
+  let geojsonLayer;
+  let regionFeatures = {};
+  
+  // Charger le fichier GeoJSON
+  fetch('chemin/vers/votre/fichier.geojson')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Impossible de charger le fichier GeoJSON');
       }
+      return response.json();
+    })
+    .then(data => {
+      // Ajouter la couche GeoJSON à la carte
+      geojsonLayer = L.geoJSON(data, {
+        style: defaultStyle,
+        onEachFeature: function(feature, layer) {
+          // Récupérer le code de la région (format INSEE)
+          const inseeCode = feature.properties.code;
+          const mapping = regionMappings[inseeCode];
+          
+          if (mapping) {
+            // Stocker la référence à cette couche
+            regionFeatures[mapping.code] = layer;
+            
+            // Ajouter une popup avec le nom de la région
+            layer.bindPopup(mapping.name);
+            
+            // Gestion des événements
+            layer.on({
+              mouseover: function(e) {
+                if (!selectedDepartments.includes(mapping.code)) {
+                  layer.setStyle({
+                    fillColor: '#C8E6C9',
+                    weight: 2
+                  });
+                }
+              },
+              mouseout: function(e) {
+                if (!selectedDepartments.includes(mapping.code)) {
+                  layer.setStyle(defaultStyle());
+                }
+              },
+              click: function(e) {
+                if (selectedDepartments.includes(mapping.code)) {
+                  // Désélectionner
+                  selectedDepartments = selectedDepartments.filter(d => d !== mapping.code);
+                  layer.setStyle(defaultStyle());
+                } else {
+                  // Sélectionner
+                  selectedDepartments.push(mapping.code);
+                  layer.setStyle(selectedStyle());
+                }
+                updateSelectedDepartmentsList();
+                updateDisplay();
+              }
+            });
+            
+            // Appliquer le style sélectionné si déjà sélectionné
+            if (selectedDepartments.includes(mapping.code)) {
+              layer.setStyle(selectedStyle());
+            }
+          }
+        }
+      }).addTo(map);
+      
+      // Ajuster le zoom pour voir toutes les régions
+      map.fitBounds(geojsonLayer.getBounds());
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      document.querySelector('.department-map').innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #f44336;">
+          Impossible de charger la carte. Veuillez réessayer ultérieurement.
+        </div>
+      `;
     });
     
-    // Mettre à jour la liste des régions sélectionnées
-    updateSelectedDepartmentsList();
-  });
-  
-  // Gérer l'erreur de chargement du SVG
-  mapObject.addEventListener('error', function() {
-    const mapContainer = document.querySelector('.department-map');
-    mapContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #f44336;">Impossible de charger la carte. Veuillez réessayer ultérieurement.</div>';
-  });
+  // Mettre à jour la liste des régions sélectionnées
+  updateSelectedDepartmentsList();
 }
 
-// Fonction améliorée pour afficher les régions sélectionnées
+// Fonction pour afficher les régions sélectionnées
 function updateSelectedDepartmentsList() {
   const list = document.getElementById('selected-dept-list');
   
   if (selectedDepartments.length === 0) {
     list.textContent = 'Aucune';
   } else {
-    // Obtenir les noms des régions sélectionnées
-    const names = selectedDepartments.map(code => {
+    // Construire un tableau des noms des régions correspondant aux codes
+    const regionNames = selectedDepartments.map(code => {
       // Chercher le nom correspondant au code
       const region = Object.values(regionMappings).find(r => r.code === code);
       return region ? region.name : code;
     }).sort();
     
-    list.textContent = names.join(', ');
+    list.textContent = regionNames.join(', ');
   }
 }
 
