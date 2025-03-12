@@ -1092,4 +1092,24 @@ label:hover {
   stroke: #2E7D32;
   fill-opacity: 0.8;
 }
+.department-map {
+  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+  background: #f0f9f3;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+}
+
+#france-map {
+  width: 100%;
+  height: 350px;
+  border: none;
+}
+
+.dark-mode .department-map {
+  background: #263238;
+  border-color: #37474F;
+}
 
