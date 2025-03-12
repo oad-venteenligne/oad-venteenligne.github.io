@@ -2,6 +2,23 @@ document.addEventListener("DOMContentLoaded", function() {
   let allData = [];
   let selectedDepartments = [];
   let isDarkMode = false;
+  
+  // Définir globalement le mapping des régions pour qu'il soit accessible à toutes les fonctions
+  const regionMappings = {
+    "84": { code: "ARA", name: "Auvergne-Rhône-Alpes" },
+    "27": { code: "BFC", name: "Bourgogne-Franche-Comté" },
+    "53": { code: "BRE", name: "Bretagne" },
+    "24": { code: "CVL", name: "Centre-Val de Loire" },
+    "94": { code: "COR", name: "Corse" },
+    "44": { code: "GES", name: "Grand Est" },
+    "32": { code: "HDF", name: "Hauts-de-France" },
+    "11": { code: "IDF", name: "Île-de-France" },
+    "28": { code: "NOR", name: "Normandie" },
+    "75": { code: "NAQ", name: "Nouvelle-Aquitaine" },
+    "76": { code: "OCC", name: "Occitanie" },
+    "52": { code: "PDL", name: "Pays de la Loire" },
+    "93": { code: "PAC", name: "Provence-Alpes-Côte d'Azur" }
+  };
 
   // Permet d'ouvrir/fermer chaque bloc de filtre indépendamment
   document.querySelectorAll('.filter-header').forEach(header => {
@@ -37,153 +54,154 @@ document.addEventListener("DOMContentLoaded", function() {
   // Initialiser les événements de la carte
   initRegionMap();
   
-function initRegionMap() {
-  // Créer la carte Leaflet centrée sur la France
-  const map = L.map('map-container').setView([46.603354, 1.888334], 5);
-  
-  // Ajouter une couche de tuiles OpenStreetMap (fond de carte)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-  
-  // Définir le style par défaut des régions
-  function defaultStyle() {
-    return {
-      fillColor: '#E8F5E9',
-      weight: 1.5,
-      opacity: 1,
-      color: '#4caf50',
-      fillOpacity: 0.7
-    };
-  }
-  
-  // Définir le style des régions sélectionnées
-  function selectedStyle() {
-    return {
-      fillColor: '#4CAF50',
-      weight: 2,
-      opacity: 1,
-      color: '#2E7D32',
-      fillOpacity: 0.8
-    };
-  }
-  
-  // Tableau de correspondance entre les codes des régions GeoJSON et vos codes
-  const regionMappings = {
-    "84": { code: "ARA", name: "Auvergne-Rhône-Alpes" },
-    "27": { code: "BFC", name: "Bourgogne-Franche-Comté" },
-    "53": { code: "BRE", name: "Bretagne" },
-    "24": { code: "CVL", name: "Centre-Val de Loire" },
-    "94": { code: "COR", name: "Corse" },
-    "44": { code: "GES", name: "Grand Est" },
-    "32": { code: "HDF", name: "Hauts-de-France" },
-    "11": { code: "IDF", name: "Île-de-France" },
-    "28": { code: "NOR", name: "Normandie" },
-    "75": { code: "NAQ", name: "Nouvelle-Aquitaine" },
-    "76": { code: "OCC", name: "Occitanie" },
-    "52": { code: "PDL", name: "Pays de la Loire" },
-    "93": { code: "PAC", name: "Provence-Alpes-Côte d'Azur" }
-  };
-  
-  // Variable pour stocker la couche GeoJSON et les entités régionales
-  let geojsonLayer;
-  let regionFeatures = {};
-  
-  // Charger le fichier GeoJSON
-  fetch('https://france-geojson.gregoiredavid.fr/repo/regions.geojson')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Impossible de charger le fichier GeoJSON');
-      }
-      return response.json();
-    })
-    .then(data => {
-      // Ajouter la couche GeoJSON à la carte
-      geojsonLayer = L.geoJSON(data, {
-        style: defaultStyle,
-        onEachFeature: function(feature, layer) {
-          // Récupérer le code de la région (format INSEE)
-          const inseeCode = feature.properties.code;
-          const mapping = regionMappings[inseeCode];
-          
-          if (mapping) {
-            // Stocker la référence à cette couche
-            regionFeatures[mapping.code] = layer;
+  function initRegionMap() {
+    // Vérifier si Leaflet est disponible
+    if (typeof L === 'undefined') {
+      console.error('La bibliothèque Leaflet n\'est pas chargée.');
+      return;
+    }
+    
+    // Vérifier si le conteneur de carte existe
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) {
+      console.error('Le conteneur de carte n\'existe pas.');
+      return;
+    }
+    
+    // Créer la carte Leaflet centrée sur la France
+    const map = L.map('map-container').setView([46.603354, 1.888334], 5);
+    
+    // Ajouter une couche de tuiles OpenStreetMap (fond de carte)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    // Définir le style par défaut des régions
+    function defaultStyle() {
+      return {
+        fillColor: '#E8F5E9',
+        weight: 1.5,
+        opacity: 1,
+        color: '#4caf50',
+        fillOpacity: 0.7
+      };
+    }
+    
+    // Définir le style des régions sélectionnées
+    function selectedStyle() {
+      return {
+        fillColor: '#4CAF50',
+        weight: 2,
+        opacity: 1,
+        color: '#2E7D32',
+        fillOpacity: 0.8
+      };
+    }
+    
+    // Variable pour stocker la couche GeoJSON et les entités régionales
+    let geojsonLayer;
+    let regionFeatures = {};
+    
+    // Charger le fichier GeoJSON
+    fetch('https://france-geojson.gregoiredavid.fr/repo/regions.geojson')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Impossible de charger le fichier GeoJSON');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Ajouter la couche GeoJSON à la carte
+        geojsonLayer = L.geoJSON(data, {
+          style: defaultStyle,
+          onEachFeature: function(feature, layer) {
+            // Récupérer le code de la région (format INSEE)
+            const inseeCode = feature.properties.code;
+            const mapping = regionMappings[inseeCode];
             
-            // Ajouter une popup avec le nom de la région
-            layer.bindPopup(mapping.name);
-            
-            // Gestion des événements
-            layer.on({
-              mouseover: function(e) {
-                if (!selectedDepartments.includes(mapping.code)) {
-                  layer.setStyle({
-                    fillColor: '#C8E6C9',
-                    weight: 2
-                  });
+            if (mapping) {
+              // Stocker la référence à cette couche
+              regionFeatures[mapping.code] = layer;
+              
+              // Ajouter une popup avec le nom de la région
+              layer.bindPopup(mapping.name);
+              
+              // Gestion des événements
+              layer.on({
+                mouseover: function(e) {
+                  if (!selectedDepartments.includes(mapping.code)) {
+                    layer.setStyle({
+                      fillColor: '#C8E6C9',
+                      weight: 2
+                    });
+                  }
+                },
+                mouseout: function(e) {
+                  if (!selectedDepartments.includes(mapping.code)) {
+                    layer.setStyle(defaultStyle());
+                  }
+                },
+                click: function(e) {
+                  if (selectedDepartments.includes(mapping.code)) {
+                    // Désélectionner
+                    selectedDepartments = selectedDepartments.filter(d => d !== mapping.code);
+                    layer.setStyle(defaultStyle());
+                  } else {
+                    // Sélectionner
+                    selectedDepartments.push(mapping.code);
+                    layer.setStyle(selectedStyle());
+                  }
+                  updateSelectedDepartmentsList();
+                  updateDisplay();
                 }
-              },
-              mouseout: function(e) {
-                if (!selectedDepartments.includes(mapping.code)) {
-                  layer.setStyle(defaultStyle());
-                }
-              },
-              click: function(e) {
-                if (selectedDepartments.includes(mapping.code)) {
-                  // Désélectionner
-                  selectedDepartments = selectedDepartments.filter(d => d !== mapping.code);
-                  layer.setStyle(defaultStyle());
-                } else {
-                  // Sélectionner
-                  selectedDepartments.push(mapping.code);
-                  layer.setStyle(selectedStyle());
-                }
-                updateSelectedDepartmentsList();
-                updateDisplay();
+              });
+              
+              // Appliquer le style sélectionné si déjà sélectionné
+              if (selectedDepartments.includes(mapping.code)) {
+                layer.setStyle(selectedStyle());
               }
-            });
-            
-            // Appliquer le style sélectionné si déjà sélectionné
-            if (selectedDepartments.includes(mapping.code)) {
-              layer.setStyle(selectedStyle());
             }
           }
-        }
-      }).addTo(map);
+        }).addTo(map);
+        
+        // Ajuster le zoom pour voir toutes les régions
+        map.fitBounds(geojsonLayer.getBounds());
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        document.querySelector('.department-map').innerHTML = `
+          <div style="text-align: center; padding: 20px; color: #f44336;">
+            Impossible de charger la carte. Veuillez réessayer ultérieurement.
+          </div>
+        `;
+      });
       
-      // Ajuster le zoom pour voir toutes les régions
-      map.fitBounds(geojsonLayer.getBounds());
-    })
-    .catch(error => {
-      console.error('Erreur:', error);
-      document.querySelector('.department-map').innerHTML = `
-        <div style="text-align: center; padding: 20px; color: #f44336;">
-          Impossible de charger la carte. Veuillez réessayer ultérieurement.
-        </div>
-      `;
-    });
-    
-  // Mettre à jour la liste des régions sélectionnées
-  updateSelectedDepartmentsList();
-}
-
-// Fonction pour afficher les régions sélectionnées
-function updateSelectedDepartmentsList() {
-  const list = document.getElementById('selected-dept-list');
-  
-  if (selectedDepartments.length === 0) {
-    list.textContent = 'Aucune';
-  } else {
-    // Construire un tableau des noms des régions correspondant aux codes
-    const regionNames = selectedDepartments.map(code => {
-      // Chercher le nom correspondant au code
-      const region = Object.values(regionMappings).find(r => r.code === code);
-      return region ? region.name : code;
-    }).sort();
-    
-    list.textContent = regionNames.join(', ');
+    // Mettre à jour la liste des régions sélectionnées
+    updateSelectedDepartmentsList();
   }
-}
+
+  // Fonction pour afficher les régions sélectionnées
+  function updateSelectedDepartmentsList() {
+    const list = document.getElementById('selected-dept-list');
+    
+    if (!list) {
+      console.error("L'élément 'selected-dept-list' n'existe pas.");
+      return;
+    }
+    
+    if (selectedDepartments.length === 0) {
+      list.textContent = 'Aucune';
+    } else {
+      // Construire un tableau des noms des régions correspondant aux codes
+      const regionNames = selectedDepartments.map(code => {
+        // Chercher le nom correspondant au code
+        const region = Object.values(regionMappings).find(r => r.code === code);
+        return region ? region.name : code;
+      }).sort();
+      
+      list.textContent = regionNames.join(', ');
+    }
+  }
 
   // Fonction pour la recherche textuelle
   function searchFilter(searchText) {
@@ -261,7 +279,7 @@ function updateSelectedDepartmentsList() {
     const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
     const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
     const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-    const searchText = document.querySelector('#search-input').value.trim().toLowerCase();
+    const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
     const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
     
     // Appliquer tous les filtres
@@ -278,8 +296,7 @@ function updateSelectedDepartmentsList() {
       const matchesCout = selectedCouts.length === 0 || 
                         selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
       
-      // Filtre par région/département (simulé pour l'exemple)
-      // Dans un cas réel, vous devriez avoir des données correspondantes dans l'API
+      // Filtre par région (en utilisant les codes de région corrects)
       const matchesDepartment = selectedDepartments.length === 0 || 
                               (item.bf_region && selectedDepartments.includes(item.bf_region));
       
@@ -297,6 +314,11 @@ function updateSelectedDepartmentsList() {
   // Fonction de mise à jour de l'affichage des fiches
   function updateDisplay() {
     const container = document.getElementById("fiches-container");
+    if (!container) {
+      console.error("L'élément 'fiches-container' n'existe pas.");
+      return;
+    }
+    
     container.innerHTML = '';
     
     // Afficher l'indicateur de chargement
@@ -338,6 +360,11 @@ function updateSelectedDepartmentsList() {
   // Mise à jour du compteur de résultats
   function updateResultsCount(count) {
     const resultsStats = document.getElementById("results-stats");
+    if (!resultsStats) {
+      console.error("L'élément 'results-stats' n'existe pas.");
+      return;
+    }
+    
     resultsStats.innerHTML = `<div>${count} outil${count > 1 ? 's' : ''} trouvé${count > 1 ? 's' : ''}</div>`;
   }
 
@@ -407,83 +434,85 @@ function updateSelectedDepartmentsList() {
            text.substring(index + searchTerm.length);
   }
 
-function renderCard(item, isMatched, totalActiveFilters) {
-  const searchTerm = document.querySelector('#search-input').value.trim();
-  
-  // Préparer les données de la carte
-  const title = item.bf_titre || 'Sans titre';
-  const description = item.bf_descriptiongenerale ? getFirstSentence(item.bf_descriptiongenerale) : 'Description non disponible';
-  const platformType = getPlatformType(item.listeListeTypeplateforme);
-  const anneeCreation = getYearFromNumber(item.listeListeAnneeDeMiseEnLigne);
-  const typeClients = getClientTypes(item.checkboxListeTypeclientid_typeclient);
-  const ficheUrl = `https://www.oad-venteenligne.org/?${item.id_fiche}`;
-  const imageUrl = item.imagebf_image 
-                  ? `https://www.oad-venteenligne.org/cache/vignette_${item.imagebf_image}` 
-                  : 'https://via.placeholder.com/100?text=Logo';
-  
-  // Mettre en surbrillance les termes recherchés
-  const highlightedTitle = highlightText(title, searchTerm);
-  const highlightedDescription = highlightText(description, searchTerm);
-  
-  // Calculer les filtres correspondants
-  let matchedCount = 0;
-  const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
-  const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
-  const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-  
-  if (selectedPlatforms.length > 0 && selectedPlatforms.includes(item.listeListeTypeplateforme)) {
-    matchedCount++;
-  }
-  
-  if (selectedClients.length > 0) {
-    const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-    if (itemClients.some(client => selectedClients.includes(client))) {
+  function renderCard(item, isMatched, totalActiveFilters) {
+    const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
+    
+    // Préparer les données de la carte
+    const title = item.bf_titre || 'Sans titre';
+    const description = item.bf_descriptiongenerale ? getFirstSentence(item.bf_descriptiongenerale) : 'Description non disponible';
+    const platformType = getPlatformType(item.listeListeTypeplateforme);
+    const anneeCreation = getYearFromNumber(item.listeListeAnneeDeMiseEnLigne);
+    const typeClients = getClientTypes(item.checkboxListeTypeclientid_typeclient);
+    const ficheUrl = `https://www.oad-venteenligne.org/?${item.id_fiche}`;
+    const imageUrl = item.imagebf_image 
+                    ? `https://www.oad-venteenligne.org/cache/vignette_${item.imagebf_image}` 
+                    : 'https://via.placeholder.com/100?text=Logo';
+    
+    // Mettre en surbrillance les termes recherchés
+    const highlightedTitle = highlightText(title, searchTerm);
+    const highlightedDescription = highlightText(description, searchTerm);
+    
+    // Calculer les filtres correspondants
+    let matchedCount = 0;
+    const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+    const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
+    const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+    
+    if (selectedPlatforms.length > 0 && selectedPlatforms.includes(item.listeListeTypeplateforme)) {
       matchedCount++;
     }
-  }
-  
-  if (selectedCouts.length > 0 && selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme)) {
-    matchedCount++;
-  }
-  
-  if (selectedDepartments.length > 0 && item.bf_region && selectedDepartments.includes(item.bf_region)) {
-    matchedCount++;
-  }
-  
-  // Créer la carte avec structure verticale
-  const card = document.createElement("div");
-  card.className = isMatched ? "tool-card" : "tool-card unmatched";
-  card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
-  
-  card.innerHTML = `
-    <div class="card-left">
-      <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
-      <div class="tool-category">${platformType}</div>
-      ${totalActiveFilters > 0 
-        ? `<div class="match-info">${matchedCount} filtres sur ${totalActiveFilters}</div>`
-        : ''
+    
+    if (selectedClients.length > 0) {
+      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+      if (itemClients.some(client => selectedClients.includes(client))) {
+        matchedCount++;
       }
-    </div>
-    <div class="card-right">
-      <h2 class="tool-title">${highlightedTitle}</h2>
-      <p class="tool-description">${highlightedDescription}</p>
-      <div class="highlight-box">
-        <p><strong>Année de création :</strong> ${anneeCreation}</p>
-        <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
-        ${item.bf_urloutil 
-          ? `<p><strong>Site web :</strong> <a href="${item.bf_urloutil}" target="_blank" rel="noopener">${item.bf_urloutil}</a></p>` 
+    }
+    
+    if (selectedCouts.length > 0 && selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme)) {
+      matchedCount++;
+    }
+    
+    if (selectedDepartments.length > 0 && item.bf_region && selectedDepartments.includes(item.bf_region)) {
+      matchedCount++;
+    }
+    
+    // Créer la carte avec structure verticale
+    const card = document.createElement("div");
+    card.className = isMatched ? "tool-card" : "tool-card unmatched";
+    card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
+    
+    card.innerHTML = `
+      <div class="card-left">
+        <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
+        <div class="tool-category">${platformType}</div>
+        ${totalActiveFilters > 0 
+          ? `<div class="match-info">${matchedCount} filtres sur ${totalActiveFilters}</div>`
           : ''
         }
       </div>
-      <button class="cta-button" onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
-        En savoir plus
-      </button>
-    </div>
-  `;
-  
-  const container = document.getElementById("fiches-container");
-  container.appendChild(card);
-}
+      <div class="card-right">
+        <h2 class="tool-title">${highlightedTitle}</h2>
+        <p class="tool-description">${highlightedDescription}</p>
+        <div class="highlight-box">
+          <p><strong>Année de création :</strong> ${anneeCreation}</p>
+          <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
+          ${item.bf_urloutil 
+            ? `<p><strong>Site web :</strong> <a href="${item.bf_urloutil}" target="_blank" rel="noopener">${item.bf_urloutil}</a></p>` 
+            : ''
+          }
+        </div>
+        <button class="cta-button" onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
+          En savoir plus
+        </button>
+      </div>
+    `;
+    
+    const container = document.getElementById("fiches-container");
+    if (container) {
+      container.appendChild(card);
+    }
+  }
 
   // Chargement des données depuis l'API avec mise en cache
   function loadData() {
@@ -495,6 +524,11 @@ function renderCard(item, isMatched, totalActiveFilters) {
     
     // Afficher l'indicateur de chargement
     const container = document.getElementById("fiches-container");
+    if (!container) {
+      console.error("L'élément 'fiches-container' n'existe pas.");
+      return;
+    }
+    
     container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des données...</p></div>';
     
     // Si le cache est valide (moins d'un jour)
@@ -549,11 +583,14 @@ function renderCard(item, isMatched, totalActiveFilters) {
   });
   
   // Écoute des changements dans la barre de recherche (avec debounce)
-  let searchTimeout;
-  document.querySelector('#search-input').addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(updateDisplay, 300); // Attendre 300ms après la fin de la saisie
-  });
+  const searchInput = document.querySelector('#search-input');
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(updateDisplay, 300); // Attendre 300ms après la fin de la saisie
+    });
+  }
   
   // Exposer loadData au contexte global pour le bouton de réessai
   window.loadData = loadData;
