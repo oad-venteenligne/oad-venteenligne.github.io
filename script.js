@@ -299,80 +299,87 @@ document.addEventListener("DOMContentLoaded", function() {
            text.substring(index + searchTerm.length);
   }
 
-  // Fonction pour créer et afficher une fiche (card)
-  function renderCard(item, isMatched, totalActiveFilters) {
-    const searchTerm = document.querySelector('#search-input').value.trim();
-    
-    // Préparer les données de la carte
-    const title = item.bf_titre || 'Sans titre';
-    const description = item.bf_descriptiongenerale ? getFirstSentence(item.bf_descriptiongenerale) : 'Description non disponible';
-    const platformType = getPlatformType(item.listeListeTypeplateforme);
-    const anneeCreation = getYearFromNumber(item.listeListeAnneeDeMiseEnLigne);
-    const typeClients = getClientTypes(item.checkboxListeTypeclientid_typeclient);
-    const ficheUrl = `https://www.oad-venteenligne.org/?${item.id_fiche}`;
-    const imageUrl = item.imagebf_image 
-                    ? `https://www.oad-venteenligne.org/cache/vignette_${item.imagebf_image}` 
-                    : 'https://via.placeholder.com/100?text=Logo';
-    
-    // Mettre en surbrillance les termes recherchés
-    const highlightedTitle = highlightText(title, searchTerm);
-    const highlightedDescription = highlightText(description, searchTerm);
-    
-    // Calculer les filtres correspondants
-    let matchedCount = 0;
-    const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
-    const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
-    const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-    
-    if (selectedPlatforms.length > 0 && selectedPlatforms.includes(item.listeListeTypeplateforme)) {
+// Modification de la fonction renderCard pour améliorer la structure HTML
+
+function renderCard(item, isMatched, totalActiveFilters) {
+  const searchTerm = document.querySelector('#search-input').value.trim();
+  
+  // Préparer les données de la carte
+  const title = item.bf_titre || 'Sans titre';
+  const description = item.bf_descriptiongenerale ? getFirstSentence(item.bf_descriptiongenerale) : 'Description non disponible';
+  const platformType = getPlatformType(item.listeListeTypeplateforme);
+  const anneeCreation = getYearFromNumber(item.listeListeAnneeDeMiseEnLigne);
+  const typeClients = getClientTypes(item.checkboxListeTypeclientid_typeclient);
+  const ficheUrl = `https://www.oad-venteenligne.org/?${item.id_fiche}`;
+  const imageUrl = item.imagebf_image 
+                  ? `https://www.oad-venteenligne.org/cache/vignette_${item.imagebf_image}` 
+                  : 'https://via.placeholder.com/100?text=Logo';
+  
+  // Mettre en surbrillance les termes recherchés
+  const highlightedTitle = highlightText(title, searchTerm);
+  const highlightedDescription = highlightText(description, searchTerm);
+  
+  // Calculer les filtres correspondants
+  let matchedCount = 0;
+  const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+  const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
+  const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+  
+  if (selectedPlatforms.length > 0 && selectedPlatforms.includes(item.listeListeTypeplateforme)) {
+    matchedCount++;
+  }
+  
+  if (selectedClients.length > 0) {
+    const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+    if (itemClients.some(client => selectedClients.includes(client))) {
       matchedCount++;
     }
-    
-    if (selectedClients.length > 0) {
-      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-      if (itemClients.some(client => selectedClients.includes(client))) {
-        matchedCount++;
+  }
+  
+  if (selectedCouts.length > 0 && selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme)) {
+    matchedCount++;
+  }
+  
+  if (selectedDepartments.length > 0 && item.bf_region && selectedDepartments.includes(item.bf_region)) {
+    matchedCount++;
+  }
+  
+  // Créer la carte avec structure améliorée
+  const card = document.createElement("div");
+  card.className = isMatched ? "tool-card" : "tool-card unmatched";
+  card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
+  
+  card.innerHTML = `
+    <div class="card-left">
+      <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
+      <div class="tool-category">${platformType}</div>
+      ${totalActiveFilters > 0 
+        ? `<div class="match-info">${matchedCount} filtres sur ${totalActiveFilters}</div>`
+        : ''
       }
-    }
-    
-    if (selectedCouts.length > 0 && selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme)) {
-      matchedCount++;
-    }
-    
-    if (selectedDepartments.length > 0 && item.bf_region && selectedDepartments.includes(item.bf_region)) {
-      matchedCount++;
-    }
-    
-    // Créer la carte
-    const card = document.createElement("div");
-    card.className = isMatched ? "tool-card" : "tool-card unmatched";
-    card.innerHTML = `
-      <div class="card-left">
-        <img src="${imageUrl}" alt="${title}" class="tool-logo">
-        <div class="tool-category">${platformType}</div>
-        ${totalActiveFilters > 0 
-          ? `<div class="match-info">${matchedCount} / ${totalActiveFilters}</div>`
+    </div>
+    <div class="card-right">
+      <div>
+        <h2 class="tool-title">${highlightedTitle}</h2>
+        <p class="tool-description">${highlightedDescription}</p>
+      </div>
+      <div class="highlight-box">
+        <p><strong>Année de création :</strong> ${anneeCreation}</p>
+        <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
+        ${item.bf_urloutil 
+          ? `<p><strong>Site web :</strong> <a href="${item.bf_urloutil}" target="_blank" rel="noopener">${item.bf_urloutil}</a></p>` 
           : ''
         }
       </div>
-      <div class="card-right">
-        <h2 class="tool-title">${highlightedTitle}</h2>
-        <p class="tool-description">${highlightedDescription}</p>
-        <div class="highlight-box">
-          <p><strong>Année de création :</strong> ${anneeCreation}</p>
-          <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
-          ${item.bf_urloutil 
-            ? `<p><strong>Adresse web :</strong> <a href="${item.bf_urloutil}" target="_blank" rel="noopener">${item.bf_urloutil}</a></p>` 
-            : ''
-          }
-        </div>
-        <button class="cta-button" onclick="window.open('${ficheUrl}', '_blank')">En savoir plus</button>
-      </div>
-    `;
-    
-    const container = document.getElementById("fiches-container");
-    container.appendChild(card);
-  }
+      <button class="cta-button" onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
+        En savoir plus
+      </button>
+    </div>
+  `;
+  
+  const container = document.getElementById("fiches-container");
+  container.appendChild(card);
+}
 
   // Chargement des données depuis l'API avec mise en cache
   function loadData() {
