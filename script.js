@@ -149,55 +149,59 @@ document.addEventListener("DOMContentLoaded", function() {
       (selectedCouts.length > 0 ? 1 : 0) +
       (selectedRegions.length > 0 ? 1 : 0);
     
-    // Calculer le score de correspondance pour chaque item
-    const scoredItems = allData.map(item => {
-      let matchScore = 0;
-      let matches = true;
-      
-      // Vérifier la correspondance avec le filtre de texte (obligatoire)
-      const matchesSearch = searchFilter(searchText)(item);
-      if (!matchesSearch) {
-        matches = false;
-      }
-      
-      // Calculer les correspondances pour chaque filtre
-      if (selectedPlatforms.length > 0) {
-        const matchesPlatform = selectedPlatforms.includes(item.listeListeTypeplateforme);
-        if (matchesPlatform) matchScore++;
-      }
-      
-      if (selectedClients.length > 0) {
-        const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-        const matchesClient = itemClients.some(client => selectedClients.includes(client));
-        if (matchesClient) matchScore++;
-      }
-      
-      if (selectedCouts.length > 0) {
-        const matchesCout = selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
-        if (matchesCout) matchScore++;
-      }
-      
-      if (selectedRegions.length > 0) {
-        let matchesRegion = false;
-        if (item.listeListeOuinonid_echellelocalisation === "1") {
-          // Échelle nationale
-          matchesRegion = true;
-        } else if (item.listeListeOuinonid_echellelocalisation === "2") {
-          // Restriction géographique
-          const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
-          matchesRegion = itemRegions.some(region => selectedRegions.includes(region));
-        }
-        if (matchesRegion) matchScore++;
-      }
-      
-      return {
-        data: item,
-        matchScore: matchScore,
-        totalScore: totalActiveFilters,
-        matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
-        matchPercentage: totalActiveFilters > 0 ? (matchScore / totalActiveFilters) * 100 : 100
-      };
-    });
+   // Calculer le score de correspondance pour chaque item
+const scoredItems = allData.map(item => {
+  let matchScore = 0;
+  let matches = true;
+  
+  // Vérifier la correspondance avec le filtre de texte (obligatoire)
+  const matchesSearch = searchFilter(searchText)(item);
+  if (!matchesSearch) {
+    matches = false;
+  }
+  
+  // Calculer les correspondances pour chaque filtre
+  if (selectedPlatforms.length > 0) {
+    const matchesPlatform = selectedPlatforms.includes(item.listeListeTypeplateforme);
+    if (matchesPlatform) matchScore++;
+    else matches = false; // Ne correspond pas si une plateforme est sélectionnée mais pas correspondante
+  }
+  
+  if (selectedClients.length > 0) {
+    const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+    const matchesClient = itemClients.some(client => selectedClients.includes(client));
+    if (matchesClient) matchScore++;
+    else matches = false; // Ne correspond pas si un client est sélectionné mais pas correspondant
+  }
+  
+  if (selectedCouts.length > 0) {
+    const matchesCout = selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
+    if (matchesCout) matchScore++;
+    else matches = false; // Ne correspond pas si un coût est sélectionné mais pas correspondant
+  }
+  
+  if (selectedRegions.length > 0) {
+    let matchesRegion = false;
+    if (item.listeListeOuinonid_echellelocalisation === "1") {
+      // Échelle nationale
+      matchesRegion = true;
+    } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+      // Restriction géographique
+      const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+      matchesRegion = itemRegions.some(region => selectedRegions.includes(region));
+    }
+    if (matchesRegion) matchScore++;
+    else matches = false; // Ne correspond pas si une région est sélectionnée mais pas correspondante
+  }
+  
+  return {
+    data: item,
+    matchScore: matchScore,
+    totalScore: totalActiveFilters,
+    matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi ET tous les filtres correspondent
+    matchPercentage: totalActiveFilters > 0 ? (matchScore / totalActiveFilters) * 100 : 100
+  };
+});
     
     // Séparer les éléments correspondants et non correspondants
     const matchingItems = scoredItems.filter(item => item.matches);
