@@ -548,168 +548,214 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // ===== FONCTIONS DU MODAL =====
 
-// Fonction pour ouvrir le modal avec les détails d'un outil
-function openToolModal(itemData) {
-  const modal = document.getElementById('tool-modal');
-  const modalBody = document.getElementById('modal-body');
-  
-  if (!modal || !modalBody) {
-    console.error("Éléments du modal non trouvés");
-    return;
-  }
-  
-  // Construire le contenu du modal
-  let content = `
-    <div class="modal-header">
-      ${itemData.imagebf_image ? 
-        `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre}" class="modal-logo">` : 
-        `<img src="https://via.placeholder.com/150?text=Logo" alt="Logo par défaut" class="modal-logo">`
-      }
-      <h1>${itemData.bf_titre}</h1>
-      <p>${getPlatformType(itemData.listeListeTypeplateforme)}</p>
-    </div>
-  `;
-  
-  // Informations générales
-  content += `
-    <div class="modal-section">
-      <h2>Informations générales</h2>
-      <div class="modal-field">
-        <span class="modal-field-name">Description</span>
-        <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale)}</div>
-      </div>
-      ${itemData.bf_urloutil ? 
-        `<div class="modal-field">
-          <span class="modal-field-name">Site web</span>
-          <div class="modal-field-value"><a href="${itemData.bf_urloutil}" target="_blank">${itemData.bf_urloutil}</a></div>
-        </div>` : ''
-      }
-      <div class="modal-field">
-        <span class="modal-field-name">Structure</span>
-        <div class="modal-field-value">${itemData.bf_nomstructure || 'Non renseigné'}</div>
-      </div>
-      <div class="modal-field">
-        <span class="modal-field-name">Année de mise en ligne</span>
-        <div class="modal-field-value">${getYearFromNumber(itemData.listeListeAnneeDeMiseEnLigne)}</div>
-      </div>
-    </div>
-  `;
-  
-  // Statistiques
-  content += `
-    <div class="modal-section">
-      <h2>Chiffres clés</h2>
-      <div class="features-grid">
-        ${itemData.bf_nbretp ? 
-          `<div class="feature-item">
-            <div class="feature-title">Équipe</div>
-            <div class="feature-description">${itemData.bf_nbretp}</div>
-          </div>` : ''
-        }
-        ${itemData.bf_nbr_producteurs ? 
-          `<div class="feature-item">
-            <div class="feature-title">Nombre de producteurs</div>
-            <div class="feature-description">${formatNumber(itemData.bf_nbr_producteurs)}</div>
-          </div>` : ''
-        }
-        ${itemData.bf_nbrclientsactifs ? 
-          `<div class="feature-item">
-            <div class="feature-title">Clients actifs</div>
-            <div class="feature-description">${formatNumber(itemData.bf_nbrclientsactifs)}</div>
-          </div>` : ''
-        }
-        ${itemData.bf_nbrvolume ? 
-          `<div class="feature-item">
-            <div class="feature-title">Volume d'affaires</div>
-            <div class="feature-description">${formatNumber(itemData.bf_nbrvolume)}€</div>
-          </div>` : ''
-        }
-      </div>
-    </div>
-  `;
-  
-  // Clientèle, coûts et produits
-  content += `
-    <div class="modal-section">
-      <h2>Clientèle et produits</h2>
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-title">Type d'acheteurs</div>
-          <div class="feature-description">${getClientTypes(itemData.checkboxListeTypeclientid_typeclient)}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Coût</div>
-          <div class="feature-description">${getCostType(itemData.checkboxListeCoutplateformeid_coutplateforme)}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Produits commercialisés</div>
-          <div class="feature-description">${getProductTypes(itemData.checkboxListeProduitcommercialiseid_produitscommercialises)}</div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // Boutons d'action
-  content += `
-    <div class="modal-actions">
-      <a href="${itemData.url || `https://www.oad-venteenligne.org/?${itemData.id_fiche}`}" target="_blank" class="modal-button">
-        Voir la fiche détaillée
-      </a>
-      ${itemData.bf_urloutil ? 
-        `<a href="${itemData.bf_urloutil}" target="_blank" class="modal-button">
-          Visiter le site web
-        </a>` : ''
-      }
-    </div>
-  `;
-  
-  // Insérer le contenu dans le modal
-  modalBody.innerHTML = content;
-  
-  // Afficher le modal
-  modal.style.display = 'block';
-  
-  // Empêcher le défilement du contenu sous-jacent
-  document.body.style.overflow = 'hidden';
-  
-  // Gérer la fermeture du modal
-  const closeBtn = document.querySelector('.close-modal');
-  if (closeBtn) {
-    closeBtn.onclick = closeModal;
-  }
-  
-  // Fermer le modal en cliquant à l'extérieur
-  window.onclick = function(event) {
-    if (event.target === modal) {
-      closeModal();
+  // Fonction pour ouvrir le modal avec les détails d'un outil
+  function openToolModal(itemData) {
+    const modal = document.getElementById('tool-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    if (!modal || !modalBody) {
+      console.error("Éléments du modal non trouvés");
+      return;
     }
-  };
-  
-  // Fermer avec la touche Escape
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-      closeModal();
+    
+    // Construire le contenu du modal
+    let content = `
+      <div class="modal-header">
+        ${itemData.imagebf_image ? 
+          `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre}" class="modal-logo">` : 
+          `<img src="https://via.placeholder.com/150?text=Logo" alt="Logo par défaut" class="modal-logo">`
+        }
+        <h1>${itemData.bf_titre}</h1>
+        <p>${getPlatformType(itemData.listeListeTypeplateforme)}</p>
+      </div>
+    `;
+    
+    // Informations générales
+    content += `
+      <div class="modal-section">
+        <h2>Informations générales</h2>
+        <div class="modal-field">
+          <span class="modal-field-name">Description</span>
+          <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale)}</div>
+        </div>
+        ${itemData.bf_urloutil ? 
+          `<div class="modal-field">
+            <span class="modal-field-name">Site web</span>
+            <div class="modal-field-value"><a href="${itemData.bf_urloutil}" target="_blank">${itemData.bf_urloutil}</a></div>
+          </div>` : ''
+        }
+        <div class="modal-field">
+          <span class="modal-field-name">Structure</span>
+          <div class="modal-field-value">${itemData.bf_nomstructure || 'Non renseigné'}</div>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-name">Année de mise en ligne</span>
+          <div class="modal-field-value">${getYearFromNumber(itemData.listeListeAnneeDeMiseEnLigne)}</div>
+        </div>
+      </div>
+    `;
+    
+    // Statistiques
+    content += `
+      <div class="modal-section">
+        <h2>Chiffres clés</h2>
+        <div class="features-grid">
+          ${itemData.bf_nbretp ? 
+            `<div class="feature-item">
+              <div class="feature-title">Équipe</div>
+              <div class="feature-description">${itemData.bf_nbretp}</div>
+            </div>` : ''
+          }
+          ${itemData.bf_nbr_producteurs ? 
+            `<div class="feature-item">
+              <div class="feature-title">Nombre de producteurs</div>
+              <div class="feature-description">${formatNumber(itemData.bf_nbr_producteurs)}</div>
+            </div>` : ''
+          }
+          ${itemData.bf_nbrclientsactifs ? 
+            `<div class="feature-item">
+              <div class="feature-title">Clients actifs</div>
+              <div class="feature-description">${formatNumber(itemData.bf_nbrclientsactifs)}</div>
+            </div>` : ''
+          }
+          ${itemData.bf_nbrvolume ? 
+            `<div class="feature-item">
+              <div class="feature-title">Volume d'affaires</div>
+              <div class="feature-description">${formatNumber(itemData.bf_nbrvolume)}€</div>
+            </div>` : ''
+          }
+        </div>
+      </div>
+    `;
+    
+    // Clientèle, coûts et produits
+    content += `
+      <div class="modal-section">
+        <h2>Clientèle et produits</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Type d'acheteurs</div>
+            <div class="feature-description">${getClientTypes(itemData.checkboxListeTypeclientid_typeclient)}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Coût</div>
+            <div class="feature-description">${getCostType(itemData.checkboxListeCoutplateformeid_coutplateforme)}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Produits commercialisés</div>
+            <div class="feature-description">
+              ${getProductTypesWithIcons(itemData.checkboxListeProduitcommercialiseid_produitscommercial
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Boutons d'action
+    content += `
+      <div class="modal-actions">
+        <a href="${itemData.url || `https://www.oad-venteenligne.org/?${itemData.id_fiche}`}" target="_blank" class="modal-button">
+          Voir la fiche détaillée
+        </a>
+        ${itemData.bf_urloutil ? 
+          `<a href="${itemData.bf_urloutil}" target="_blank" class="modal-button">
+            Visiter le site web
+          </a>` : ''
+        }
+      </div>
+    `;
+    
+    // Insérer le contenu dans le modal
+    modalBody.innerHTML = content;
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+    
+    // Empêcher le défilement du contenu sous-jacent
+    document.body.style.overflow = 'hidden';
+    
+    // Gérer la fermeture du modal
+    const closeModal = () => {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      // Supprimer les écouteurs d'événements pour éviter les fuites de mémoire
+      document.removeEventListener('keydown', escapeHandler);
+      window.removeEventListener('click', windowClickHandler);
+    };
+    
+    // Gestionnaire d'événement pour la touche Escape
+    const escapeHandler = (event) => {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    };
+    
+    // Gestionnaire d'événement pour les clics sur la fenêtre
+    const windowClickHandler = (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+    
+    // Ajouter les écouteurs d'événements
+    const closeBtn = document.querySelector('.close-modal');
+    if (closeBtn) {
+      closeBtn.onclick = closeModal;
     }
-  });
-}
+    
+    // Ajouter les écouteurs pour les clics à l'extérieur et la touche Escape
+    document.addEventListener('keydown', escapeHandler);
+    window.addEventListener('click', windowClickHandler);
+  }
 
-// Fonction pour obtenir les types de produits
-function getProductTypes(productTypes) {
-  if (!productTypes) return "Non renseigné";
-  
-  const types = {
-    "1": "Fruits et légumes",
-    "2": "Produits d'épicerie (produits secs, conserves, boissons)",
-    "3": "Produits carnés",
-    "4": "Produits de la pêche",
-    "5": "Produits laitiers",
-    "6": "Produits non alimentaires"
-  };
-  
-  return productTypes.split(',')
-    .map(id => types[id.trim()] || `Type ${id}`)
-    .join(', ');
-}
+  // Fonction pour obtenir les types de produits avec icônes
+  function getProductTypesWithIcons(productTypes) {
+    if (!productTypes) return "Aucun produit renseigné";
+    
+    const types = {
+      "1": {
+        icon: "🥕", // Fruits et légumes
+        name: "Fruits et légumes"
+      },
+      "2": {
+        icon: "🥫", // Produits d'épicerie
+        name: "Produits d'épicerie"
+      },
+      "3": {
+        icon: "🥩", // Produits carnés
+        name: "Produits carnés"
+      },
+      "4": {
+        icon: "🐟", // Produits de la pêche
+        name: "Produits de la pêche"
+      },
+      "5": {
+        icon: "🧀", // Produits laitiers
+        name: "Produits laitiers"
+      },
+      "6": {
+        icon: "🛍️", // Produits non alimentaires
+        name: "Produits non alimentaires"
+      }
+    };
+    
+    // Récupérer les IDs des produits
+    const productIds = productTypes.split(',').map(id => id.trim());
+    
+    // Générer le HTML avec icônes et tooltip
+    let html = '<div class="product-icons">';
+    
+    // Pour chaque produit, ajouter l'icône avec tooltip
+    productIds.forEach(id => {
+      if (types[id]) {
+        html += `<span class="product-icon" title="${types[id].name}">${types[id].icon}</span>`;
+      }
+    });
+    
+    html += '</div>';
+    
+    return html;
+  }
 
   // Formater le texte avec des paragraphes
   function formatTextWithParagraphs(text) {
