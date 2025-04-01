@@ -1,23 +1,27 @@
 document.addEventListener("DOMContentLoaded", function() {
   let allData = [];
-  let selectedDepartments = [];
   let isDarkMode = false;
   
-  // Définir globalement le mapping des régions pour qu'il soit accessible à toutes les fonctions
-  const regionMappings = {
-    "Hauts-de-France": { code: "HDF", name: "Hauts-de-France" },
-    "Normandie": { code: "NOR", name: "Normandie" },
-    "Île-de-France": { code: "IDF", name: "Île-de-France" },
-    "Grand Est": { code: "GES", name: "Grand Est" },
-    "Bretagne": { code: "BRE", name: "Bretagne" },
-    "Pays de la Loire": { code: "PDL", name: "Pays de la Loire" },
-    "Centre-Val de Loire": { code: "CVL", name: "Centre-Val de Loire" },
-    "Bourgogne-Franche-Comté": { code: "BFC", name: "Bourgogne-Franche-Comté" },
-    "Nouvelle-Aquitaine": { code: "NAQ", name: "Nouvelle-Aquitaine" },
-    "Auvergne-Rhône-Alpes": { code: "ARA", name: "Auvergne-Rhône-Alpes" },
-    "Occitanie": { code: "OCC", name: "Occitanie" },
-    "Provence-Alpes-Côte d'Azur": { code: "PAC", name: "Provence-Alpes-Côte d'Azur" },
-    "Corse": { code: "COR", name: "Corse" }
+  // Mapping des régions (ID -> nom)
+  const regionMapping = {
+    "1": "Auvergne-Rhône-Alpes",
+    "2": "Bourgogne-Franche-Comté",
+    "3": "Bretagne",
+    "4": "Centre-Val de Loire",
+    "5": "Corse",
+    "6": "Grand Est",
+    "7": "Hauts-de-France",
+    "8": "Île-de-France",
+    "9": "Normandie",
+    "10": "Nouvelle-Aquitaine",
+    "11": "Occitanie",
+    "12": "Pays de la Loire",
+    "13": "Provence-Alpes-Côte d'Azur",
+    "14": "Guadeloupe",
+    "15": "Martinique",
+    "16": "Guyane",
+    "17": "La Réunion",
+    "18": "Mayotte"
   };
 
   // Permet d'ouvrir/fermer chaque bloc de filtre indépendamment
@@ -53,186 +57,6 @@ document.addEventListener("DOMContentLoaded", function() {
   const exportButton = document.getElementById('export-button');
   if (exportButton) {
     exportButton.addEventListener('click', exportResults);
-  }
-
-  // Initialiser les événements de la carte
-  initRegionMap();
-  
-  function initRegionMap() {
-    const mapObject = document.getElementById('france-map');
-    
-    if (!mapObject) {
-      console.error("L'élément 'france-map' n'existe pas.");
-      return;
-    }
-    
-    // Attendre que le SVG soit chargé
-    mapObject.addEventListener('load', function() {
-      // Accéder au contenu SVG
-      const svgDoc = mapObject.contentDocument;
-      
-      if (!svgDoc) {
-        console.error("Impossible d'accéder au contenu du SVG.");
-        return;
-      }
-      
-      // Pour chaque région dans le SVG
-      for (const regionTitle in regionMappings) {
-        // Essayer de trouver des éléments qui représentent des régions
-        const textElements = Array.from(svgDoc.querySelectorAll('text'))
-          .filter(el => el.textContent.includes(regionTitle));
-        
-        if (textElements.length > 0) {
-          // Si on trouve des textes correspondant aux régions, chercher les éléments path/polygon associés
-          textElements.forEach(textEl => {
-            // Rechercher l'élément path associé (peut nécessiter d'adapter la logique selon la structure du SVG)
-            const nearbyPaths = Array.from(svgDoc.querySelectorAll('path, polygon'));
-            
-            // Recherche du path le plus proche du texte en X/Y
-            const textX = parseFloat(textEl.getAttribute('x') || 0);
-            const textY = parseFloat(textEl.getAttribute('y') || 0);
-            
-            let closestPath = null;
-            let minDistance = Infinity;
-            
-            nearbyPaths.forEach(path => {
-              // Obtenir le centre approximatif du path
-              const bbox = path.getBBox();
-              const pathX = bbox.x + bbox.width/2;
-              const pathY = bbox.y + bbox.height/2;
-              
-              // Calculer la distance
-              const distance = Math.sqrt(Math.pow(textX - pathX, 2) + Math.pow(textY - pathY, 2));
-              
-              if (distance < minDistance) {
-                minDistance = distance;
-                closestPath = path;
-              }
-            });
-            
-            if (closestPath && minDistance < 100) {  // Seuil arbitraire
-              applyRegionInteractivity(closestPath, regionTitle);
-            }
-          });
-        } else {
-          // Si on ne trouve pas de texte, essayer de trouver des paths avec un attribut title ou id qui correspond
-          const elementsWithAttributes = svgDoc.querySelectorAll(`[title*="${regionTitle}"], [id*="${regionTitle}"], [class*="${regionTitle}"]`);
-          
-          if (elementsWithAttributes.length > 0) {
-            elementsWithAttributes.forEach(el => {
-              if (el.tagName.toLowerCase() === 'path' || el.tagName.toLowerCase() === 'polygon') {
-                applyRegionInteractivity(el, regionTitle);
-              }
-            });
-          } else {
-            // Si toujours rien, parcourir tous les paths et vérifier leurs attributs
-            const allPaths = svgDoc.querySelectorAll('path, polygon');
-            
-            allPaths.forEach(path => {
-              const attrs = Array.from(path.attributes);
-              const matchingAttr = attrs.find(attr => attr.value.includes(regionTitle));
-              
-              if (matchingAttr) {
-                applyRegionInteractivity(path, regionTitle);
-              }
-            });
-          }
-        }
-      }
-      
-      // Fonction pour appliquer l'interactivité à un élément région
-      function applyRegionInteractivity(element, regionTitle) {
-        const regionCode = regionMappings[regionTitle].code;
-        
-        // Appliquer des styles initiaux
-        element.style.fill = "#E8F5E9";
-        element.style.stroke = "#4caf50";
-        element.style.strokeWidth = "1.5px";
-        element.style.cursor = "pointer";
-        element.style.transition = "all 0.2s ease";
-        
-        // Ajouter des attributs data pour les références futures
-        element.setAttribute('data-region-code', regionCode);
-        element.setAttribute('data-region-name', regionTitle);
-        
-        // Gérer le survol
-        element.addEventListener('mouseenter', function() {
-          if (!selectedDepartments.includes(regionCode)) {
-            element.style.fill = "#C8E6C9";
-            element.style.strokeWidth = "2px";
-          }
-        });
-        
-        element.addEventListener('mouseleave', function() {
-          if (!selectedDepartments.includes(regionCode)) {
-            element.style.fill = "#E8F5E9";
-            element.style.strokeWidth = "1.5px";
-          }
-        });
-        
-        // Gérer le clic
-        element.addEventListener('click', function() {
-          if (selectedDepartments.includes(regionCode)) {
-            // Désélectionner la région
-            selectedDepartments = selectedDepartments.filter(d => d !== regionCode);
-            element.style.fill = "#E8F5E9";
-            element.style.strokeWidth = "1.5px";
-          } else {
-            // Sélectionner la région
-            selectedDepartments.push(regionCode);
-            element.style.fill = "#4CAF50";
-            element.style.strokeWidth = "2px";
-          }
-          
-          updateSelectedDepartmentsList();
-          updateDisplay();
-        });
-        
-        // Appliquer le style sélectionné si déjà sélectionné
-        if (selectedDepartments.includes(regionCode)) {
-          element.style.fill = "#4CAF50";
-          element.style.strokeWidth = "2px";
-        }
-      }
-    });
-    
-    // Gérer l'erreur de chargement du SVG
-    mapObject.addEventListener('error', function() {
-      const mapContainer = document.querySelector('.department-map');
-      if (mapContainer) {
-        mapContainer.innerHTML = `
-          <div style="text-align: center; padding: 20px; color: #f44336;">
-            Impossible de charger la carte. Veuillez réessayer ultérieurement.
-          </div>
-        `;
-      }
-    });
-    
-    // Mettre à jour la liste des régions sélectionnées
-    updateSelectedDepartmentsList();
-  }
-
-  // Fonction pour afficher les régions sélectionnées
-  function updateSelectedDepartmentsList() {
-    const list = document.getElementById('selected-dept-list');
-    
-    if (!list) {
-      console.error("L'élément 'selected-dept-list' n'existe pas.");
-      return;
-    }
-    
-    if (selectedDepartments.length === 0) {
-      list.textContent = 'Aucune';
-    } else {
-      // Construire un tableau des noms des régions correspondant aux codes
-      const regionNames = selectedDepartments.map(code => {
-        // Chercher le nom correspondant au code
-        const region = Object.values(regionMappings).find(r => r.code === code);
-        return region ? region.name : code;
-      }).sort();
-      
-      list.textContent = regionNames.join(', ');
-    }
   }
 
   // Fonction pour la recherche textuelle
@@ -311,6 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
     const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
     const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+    const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
     const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
     const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
     
@@ -328,15 +153,27 @@ document.addEventListener("DOMContentLoaded", function() {
       const matchesCout = selectedCouts.length === 0 || 
                         selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
       
-      // Filtre par région (en utilisant les codes de région corrects)
-      const matchesDepartment = selectedDepartments.length === 0 || 
-                              (item.bf_region && selectedDepartments.includes(item.bf_region));
+      // Filtre par région (nouvelle logique)
+      let matchesRegion = true;
+      if (selectedRegions.length > 0) {
+        // Si la plateforme est à l'échelle nationale (1), elle correspond à toute région
+        if (item.listeListeOuinonid_echellelocalisation === "1") {
+          matchesRegion = true;
+        } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+          // Si la plateforme a une restriction géographique (2), vérifier les régions
+          const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+          matchesRegion = itemRegions.some(region => selectedRegions.includes(region));
+        } else {
+          // Par défaut (si pas d'information), on considère que ça match
+          matchesRegion = true;
+        }
+      }
       
       // Filtre par texte de recherche
       const matchesSearch = searchFilter(searchText)(item);
       
       // Combiner tous les filtres (ET logique)
-      return matchesPlatform && matchesClient && matchesCout && matchesDepartment && matchesSearch;
+      return matchesPlatform && matchesClient && matchesCout && matchesRegion && matchesSearch;
     });
     
     // Trier les résultats
@@ -382,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function() {
         (Array.from(document.querySelectorAll('.filter-platform:checked')).length > 0 ? 1 : 0) +
         (Array.from(document.querySelectorAll('.filter-client:checked')).length > 0 ? 1 : 0) +
         (Array.from(document.querySelectorAll('.filter-cout:checked')).length > 0 ? 1 : 0) +
-        (selectedDepartments.length > 0 ? 1 : 0);
+        (Array.from(document.querySelectorAll('.filter-region:checked')).length > 0 ? 1 : 0);
       
       // Afficher les fiches filtrées
       filteredItems.forEach(item => renderCard(item, true, totalActiveFilters));
@@ -489,6 +326,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
     const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
     const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+    const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
     
     if (selectedPlatforms.length > 0 && selectedPlatforms.includes(item.listeListeTypeplateforme)) {
       matchedCount++;
@@ -505,8 +343,18 @@ document.addEventListener("DOMContentLoaded", function() {
       matchedCount++;
     }
     
-    if (selectedDepartments.length > 0 && item.bf_region && selectedDepartments.includes(item.bf_region)) {
-      matchedCount++;
+    // Vérification si la plateforme correspond aux régions sélectionnées
+    if (selectedRegions.length > 0) {
+      if (item.listeListeOuinonid_echellelocalisation === "1") {
+        // Échelle nationale
+        matchedCount++;
+      } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+        // Restriction géographique
+        const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+        if (itemRegions.some(region => selectedRegions.includes(region))) {
+          matchedCount++;
+        }
+      }
     }
     
     // Créer la carte avec structure verticale
@@ -610,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Écoute des changements sur les filtres
-  document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-sort').forEach(cb => {
+  document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-region, .filter-sort').forEach(cb => {
     cb.addEventListener('change', updateDisplay);
   });
   
