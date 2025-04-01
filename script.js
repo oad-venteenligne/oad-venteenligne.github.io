@@ -132,76 +132,97 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.removeChild(link);
   }
   
-  // Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
-  function getFilteredItems() {
-    // Récupération des critères sélectionnés pour chaque filtre
-    const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
-    const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
-    const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-    const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
-    const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
-    const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
+ // Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
+function getFilteredItems() {
+  // Récupération des critères sélectionnés pour chaque filtre
+  const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+  const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
+  const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+  const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
+  const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
+  const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
+  
+  // Calculer le nombre total de modalités sélectionnées
+  const totalSelectedModalites = selectedPlatforms.length + selectedClients.length + selectedCouts.length + selectedRegions.length;
+  
+  // Calculer le score de correspondance pour chaque item
+  const scoredItems = allData.map(item => {
+    let matchScore = 0;
+    let matches = true;
     
-    // Calculer le nombre total de groupes de filtres actifs
-    const totalActiveFilters = 
-      (selectedPlatforms.length > 0 ? 1 : 0) +
-      (selectedClients.length > 0 ? 1 : 0) +
-      (selectedCouts.length > 0 ? 1 : 0) +
-      (selectedRegions.length > 0 ? 1 : 0);
-    
-   // Calculer le score de correspondance pour chaque item
-const scoredItems = allData.map(item => {
-  let matchScore = 0;
-  let matches = true;
-  
-  // Vérifier la correspondance avec le filtre de texte (obligatoire)
-  const matchesSearch = searchFilter(searchText)(item);
-  if (!matchesSearch) {
-    matches = false;
-  }
-  
-  // Calculer les correspondances pour chaque filtre
-  if (selectedPlatforms.length > 0) {
-    const matchesPlatform = selectedPlatforms.includes(item.listeListeTypeplateforme);
-    if (matchesPlatform) matchScore++;
-    else matches = false; // Ne correspond pas si une plateforme est sélectionnée mais pas correspondante
-  }
-  
-  if (selectedClients.length > 0) {
-    const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-    const matchesClient = itemClients.some(client => selectedClients.includes(client));
-    if (matchesClient) matchScore++;
-    else matches = false; // Ne correspond pas si un client est sélectionné mais pas correspondant
-  }
-  
-  if (selectedCouts.length > 0) {
-    const matchesCout = selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
-    if (matchesCout) matchScore++;
-    else matches = false; // Ne correspond pas si un coût est sélectionné mais pas correspondant
-  }
-  
-  if (selectedRegions.length > 0) {
-    let matchesRegion = false;
-    if (item.listeListeOuinonid_echellelocalisation === "1") {
-      // Échelle nationale
-      matchesRegion = true;
-    } else if (item.listeListeOuinonid_echellelocalisation === "2") {
-      // Restriction géographique
-      const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
-      matchesRegion = itemRegions.some(region => selectedRegions.includes(region));
+    // Vérifier la correspondance avec le filtre de texte (obligatoire)
+    const matchesSearch = searchFilter(searchText)(item);
+    if (!matchesSearch) {
+      matches = false;
     }
-    if (matchesRegion) matchScore++;
-    else matches = false; // Ne correspond pas si une région est sélectionnée mais pas correspondante
-  }
+    
+    // Calculer les correspondances pour chaque modalité de plateforme
+    if (selectedPlatforms.length > 0) {
+      if (selectedPlatforms.includes(item.listeListeTypeplateforme)) {
+        matchScore++;
+      } else {
+        matches = false;
+      }
+    }
+    
+    // Calculer les correspondances pour chaque modalité de client
+    if (selectedClients.length > 0) {
+      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+      // Compter chaque modalité de client qui correspond
+      const matchingClientsCount = itemClients.filter(client => selectedClients.includes(client)).length;
+      matchScore += matchingClientsCount;
+      
+      // Si aucune modalité de client ne correspond, l'item ne correspond pas
+      if (matchingClientsCount === 0) {
+        matches = false;
+      }
+    }
+    
+    // Calculer les correspondances pour chaque modalité de coût
+    if (selectedCouts.length > 0) {
+      const itemCosts = (item.checkboxListeCoutplateformeid_coutplateforme || '').split(',').map(s => s.trim());
+      // Compter chaque modalité de coût qui correspond
+      const matchingCostsCount = itemCosts.filter(cost => selectedCouts.includes(cost)).length;
+      matchScore += matchingCostsCount;
+      
+      // Si aucune modalité de coût ne correspond, l'item ne correspond pas
+      if (matchingCostsCount === 0) {
+        matches = false;
+      }
+    }
+    
+    // Calculer les correspondances pour chaque modalité de région
+    if (selectedRegions.length > 0) {
+      let matchesRegion = false;
+      let matchingRegionsCount = 0;
+      
+      if (item.listeListeOuinonid_echellelocalisation === "1") {
+        // Échelle nationale - correspond à toutes les régions sélectionnées
+        matchesRegion = true;
+        matchingRegionsCount = selectedRegions.length; // Toutes les régions correspondent
+      } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+        // Restriction géographique
+        const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+        // Compter chaque modalité de région qui correspond
+        matchingRegionsCount = itemRegions.filter(region => selectedRegions.includes(region)).length;
+        matchesRegion = matchingRegionsCount > 0;
+      }
+      
+      matchScore += matchingRegionsCount;
+      if (!matchesRegion) {
+        matches = false;
+      }
+    }
+    
+    return {
+      data: item,
+      matchScore: matchScore,
+      totalModalites: totalSelectedModalites,
+      matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
+      matchPercentage: totalSelectedModalites > 0 ? (matchScore / totalSelectedModalites) * 100 : 100
+    };
+  });
   
-  return {
-    data: item,
-    matchScore: matchScore,
-    totalScore: totalActiveFilters,
-    matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi ET tous les filtres correspondent
-    matchPercentage: totalActiveFilters > 0 ? (matchScore / totalActiveFilters) * 100 : 100
-  };
-});
     
     // Séparer les éléments correspondants et non correspondants
     const matchingItems = scoredItems.filter(item => item.matches);
@@ -380,10 +401,10 @@ const scoredItems = allData.map(item => {
   // Mettre en surbrillance les termes recherchés
   const highlightedTitle = highlightText(title, searchTerm);
   const highlightedDescription = highlightText(description, searchTerm);
-  
+
   // Définir le style directement si non correspondant
   const unmatchedStyle = !isMatched ? 
-    'filter: grayscale(100%); position: relative;' : '';
+    'filter: grayscale(100%);' : '';
   const unmatchedBadge = !isMatched ? 
     `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
     font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
@@ -402,8 +423,8 @@ const scoredItems = allData.map(item => {
     <div class="card-left" style="${!isMatched ? 'filter: grayscale(100%);' : ''}">
       <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
       <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
-      ${totalActiveFilters > 0 
-        ? `<div class="match-info">${matchedCount} filtre${matchedCount > 1 ? 's' : ''} sur ${totalActiveFilters}</div>`
+      ${totalModalites > 0 
+        ? `<div class="match-info">${matchedCount} modalité${matchedCount > 1 ? 's' : ''} sur ${totalModalites}</div>`
         : ''
       }
     </div>
