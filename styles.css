@@ -431,33 +431,55 @@ label:hover {
   }
 }
 
-/* Reset complet pour les fiches non correspondantes - UNIQUEMENT NOIR ET BLANC */
+/* Style pour les fiches ne correspondant pas aux filtres */
 .tool-card.unmatched {
-  filter: grayscale(100%) !important;
-  
-  /* Désactiver explicitement toutes les transitions et transformations */
-  transition: none !important;
-  transform: none !important;
-  animation: none !important;
-  
-  /* Désactiver explicitement les propriétés qui pourraient causer un flou */
-  opacity: 1 !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important; /* Même ombre que les cartes normales */
-  
-  /* Conserver la même taille et position */
-  transform: translateY(0) !important;
-  scale: 1 !important;
+  filter: grayscale(80%);
+  opacity: 0.6;
+  transform: scale(0.98);
+  transition: all 0.3s ease;
 }
 
-/* S'assurer que le survol ne change rien */
 .tool-card.unmatched:hover {
-  transform: none !important;
-  transition: none !important;
-  animation: none !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+  filter: grayscale(50%);
+  opacity: 0.8;
+  transform: scale(0.99);
 }
 
-/* Empêcher tout changement sur les éléments enfants */
-.tool-card.unmatched * {
-  transition: none !important;
+.tool-card.unmatched .tool-logo {
+  filter: grayscale(100%);
+}
+
+.tool-card.unmatched .tool-category {
+  background-color: #a0a0a0;
+  color: #fafafa;
+}
+
+.tool-card.unmatched .tool-title {
+  color: #666;
+}
+
+.tool-card.unmatched .cta-button {
+  background-color: #a0a0a0;
+}
+
+/* Mode sombre pour les cartes non correspondantes */
+.dark-mode .tool-card.unmatched {
+  background: #252525;
+  opacity: 0.6;
+}
+
+.dark-mode .tool-card.unmatched .card-left {
+  background: linear-gradient(to bottom, #181818, #202020);
+}
+
+.dark-mode .tool-card.unmatched .tool-title {
+  color: #999;
+}
+
+.dark-mode .tool-card.unmatched .tool-description {
+  color: #888;
+}
+
+.dark-mode .tool-card.unmatched .cta-button {
+  background-color: #555;
 }
