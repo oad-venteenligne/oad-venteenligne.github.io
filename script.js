@@ -431,7 +431,7 @@ document.addEventListener("DOMContentLoaded", function() {
         <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
         <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
         ${item.totalModalites > 0 
-          ? `<div class="match-info">${item.matchScore} modalité${item.matchScore > 1 ? 's' : ''} sur ${item.totalModalites}</div>`
+          ? `<div class="match-info">${item.matchScore} critère${item.matchScore > 1 ? 's' : ''} sur ${item.totalModalites}</div>`
           : ''
         }
       </div>
