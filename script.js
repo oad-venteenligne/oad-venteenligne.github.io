@@ -359,6 +359,8 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   
   function getCostType(costType) {
+    if (!costType) return "Non renseigné";
+    
     const types = {
       "1": "Totalement gratuit",
       "2": "Commission prélevée au producteur",
@@ -366,6 +368,13 @@ document.addEventListener("DOMContentLoaded", function() {
       "4": "Commission prélevée au consommateur",
       "5": "Abonnement / droit d'entrée pour le consommateur"
     };
+    
+    if (costType.includes(',')) {
+      return costType.split(',')
+        .map(id => types[id.trim()] || `Type ${id}`)
+        .join(', ');
+    }
+    
     return types[costType] || "Non renseigné";
   }
   
@@ -390,6 +399,7 @@ document.addEventListener("DOMContentLoaded", function() {
            text.substring(index + searchTerm.length);
   }
 
+  // Fonction pour afficher une carte
   function renderCard(item) {
     const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
     
@@ -410,8 +420,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Définir le style directement si non correspondant
     const isMatched = item.matches;
-    const unmatchedStyle = !isMatched ? 
-      'filter: grayscale(100%);' : '';
+    const unmatchedStyle = !isMatched ? 'filter: grayscale(100%);' : '';
     const unmatchedBadge = !isMatched ? 
       `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
       font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
@@ -446,12 +455,27 @@ document.addEventListener("DOMContentLoaded", function() {
             : ''
           }
         </div>
-        <button class="cta-button" style="${!isMatched ? 'background-color: #aaa;' : ''}" 
-          onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
-          En savoir plus
+        <button class="cta-button view-details" style="${!isMatched ? 'background-color: #aaa;' : ''}" 
+          aria-label="Voir les détails de ${title}">
+          Voir les détails
         </button>
       </div>
     `;
+    
+    // Ajouter l'écouteur d'événement pour ouvrir le modal
+    const viewDetailsBtn = card.querySelector('.view-details');
+    if (viewDetailsBtn) {
+      viewDetailsBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openToolModal(item.data);
+      });
+    }
+    
+    // Ajouter un écouteur sur toute la carte pour ouvrir le modal
+    card.addEventListener('click', function() {
+      openToolModal(item.data);
+    });
     
     const container = document.getElementById("fiches-container");
     if (container) {
@@ -520,6 +544,325 @@ document.addEventListener("DOMContentLoaded", function() {
           </div>
         `;
       });
+  }
+
+  // ===== FONCTIONS DU MODAL =====
+
+  // Fonction pour ouvrir le modal avec les détails d'un outil
+  function openToolModal(itemData) {
+    const modal = document.getElementById('tool-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    if (!modal || !modalBody) {
+      console.error("Éléments du modal non trouvés");
+      return;
+    }
+    
+    // Construire le contenu du modal
+    let content = `
+      <div class="modal-header">
+        ${itemData.imagebf_image ? 
+          `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre}" class="modal-logo">` : 
+          `<img src="https://via.placeholder.com/150?text=Logo" alt="Logo par défaut" class="modal-logo">`
+        }
+        <h1>${itemData.bf_titre}</h1>
+        <p>${getPlatformType(itemData.listeListeTypeplateforme)}</p>
+      </div>
+    `;
+    
+    // Informations générales
+    content += `
+      <div class="modal-section">
+        <h2>Informations générales</h2>
+        <div class="modal-field">
+          <span class="modal-field-name">Description</span>
+          <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale)}</div>
+        </div>
+        ${itemData.bf_urloutil ? 
+          `<div class="modal-field">
+            <span class="modal-field-name">Site web</span>
+            <div class="modal-field-value"><a href="${itemData.bf_urloutil}" target="_blank">${itemData.bf_urloutil}</a></div>
+          </div>` : ''
+        }
+        <div class="modal-field">
+          <span class="modal-field-name">Structure</span>
+          <div class="modal-field-value">${itemData.bf_nomstructure || 'Non renseigné'}</div>
+        </div>
+        <div class="modal-field">
+          <span class="modal-field-name">Année de mise en ligne</span>
+          <div class="modal-field-value">${getYearFromNumber(itemData.listeListeAnneeDeMiseEnLigne)}</div>
+        </div>
+        ${itemData.bf_historique ? 
+          `<div class="modal-field">
+            <span class="modal-field-name">Historique</span>
+            <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_historique)}</div>
+          </div>` : ''
+        }
+      </div>
+    `;
+    
+    // Statistiques
+    content += `
+      <div class="modal-section">
+        <h2>Chiffres clés</h2>
+        <div class="features-grid">
+          ${itemData.bf_nbretp ? 
+            `<div class="feature-item">
+              <div class="feature-title">Équipe</div>
+              <div class="feature-description">${itemData.bf_nbretp}</div>
+            </div>` : ''
+          }
+          ${itemData.bf_nbr_producteurs ? 
+            `<div class="feature-item">
+              <div class="feature-title">Nombre de producteurs</div>
+              <div class="feature-description">${formatNumber(itemData.bf_nbr_producteurs)}</div>
+            </div>` : ''
+          }
+          ${itemData.bf_nbrclientsactifs ? 
+            `<div class="feature-item">
+              <div class="feature-title">Clients actifs</div>
+              <div class="feature-description">${formatNumber(itemData.bf_nbrclientsactifs)}</div>
+            </div>` : ''
+          }
+          ${itemData.bf_nbrvolume ? 
+            `<div class="feature-item">
+              <div class="feature-title">Volume d'affaires</div>
+              <div class="feature-description">${formatNumber(itemData.bf_nbrvolume)}€</div>
+            </div>` : ''
+          }
+        </div>
+      </div>
+    `;
+    
+    // Clientèle et coûts
+    content += `
+      <div class="modal-section">
+        <h2>Clientèle et coûts</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Type d'acheteurs</div>
+            <div class="feature-description">${getClientTypes(itemData.checkboxListeTypeclientid_typeclient)}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Coût</div>
+            <div class="feature-description">${getCostType(itemData.checkboxListeCoutplateformeid_coutplateforme)}</div>
+            </div>
+        </div>
+      </div>
+    `;
+    
+    // Fonctionnalités (uniquement celles avec valeur "2" = OUI)
+    content += `
+      <div class="modal-section">
+        <h2>Fonctionnalités disponibles</h2>
+        <div class="features-grid">`;
+      
+    // Filtrer seulement les clés qui commencent par "listeListeOuinonid_" et ont la valeur "2" (OUI)
+    const features = Object.entries(itemData)
+      .filter(([key, value]) => key.startsWith('listeListeOuinonid_') && value === "2");
+    
+    if (features.length > 0) {
+      features.forEach(([key, value]) => {
+        // Extraire le nom de la fonctionnalité à partir de la clé
+        const featureName = key.replace('listeListeOuinonid_', '');
+        const formattedName = formatFeatureName(featureName);
+        
+        // Chercher une description associée dans les champs bf_description
+        const descriptionKey = 'bf_description' + featureName;
+        const alternativeKey = 'bf_description' + getDescriptionNumber(featureName);
+        const description = itemData[descriptionKey] || itemData[alternativeKey] || '';
+        
+        content += `
+          <div class="feature-item">
+            <div class="feature-title">${formattedName}</div>
+            ${description ? `<div class="feature-description">${formatTextWithParagraphs(description)}</div>` : ''}
+          </div>`;
+      });
+    } else {
+      content += `<p>Aucune fonctionnalité spécifique renseignée</p>`;
+    }
+    
+    content += `
+      </div>
+    </div>
+    `;
+    
+    // Autres descriptions importantes
+    const descriptions = [
+      { key: 'bf_description1', title: 'Accompagnement' },
+      { key: 'bf_description2', title: 'Conditions de résiliation' },
+      { key: 'bf_description3', title: 'Gouvernance' },
+      { key: 'bf_description5', title: 'Documentation' },
+      { key: 'bf_description11', title: 'Support' }
+    ];
+    
+    const hasDescriptions = descriptions.some(desc => itemData[desc.key] && itemData[desc.key].trim() !== '');
+    
+    if (hasDescriptions) {
+      content += `
+        <div class="modal-section">
+          <h2>Informations complémentaires</h2>
+          <div class="features-grid">`;
+          
+      descriptions.forEach(desc => {
+        if (itemData[desc.key] && itemData[desc.key].trim() !== '') {
+          content += `
+            <div class="feature-item">
+              <div class="feature-title">${desc.title}</div>
+              <div class="feature-description">${formatTextWithParagraphs(itemData[desc.key])}</div>
+            </div>`;
+        }
+      });
+      
+      content += `
+          </div>
+        </div>
+      `;
+    }
+    
+    // Boutons d'action
+    content += `
+      <div class="modal-actions">
+        <a href="${itemData.url || `https://www.oad-venteenligne.org/?${itemData.id_fiche}`}" target="_blank" class="modal-button">
+          Voir la fiche détaillée
+        </a>
+        ${itemData.bf_urloutil ? 
+          `<a href="${itemData.bf_urloutil}" target="_blank" class="modal-button">
+            Visiter le site web
+          </a>` : ''
+        }
+      </div>
+    `;
+    
+    // Insérer le contenu dans le modal
+    modalBody.innerHTML = content;
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+    
+    // Empêcher le défilement du contenu sous-jacent
+    document.body.style.overflow = 'hidden';
+    
+    // Gérer la fermeture du modal
+    const closeBtn = document.querySelector('.close-modal');
+    if (closeBtn) {
+      closeBtn.onclick = closeModal;
+    }
+    
+    // Fermer le modal en cliquant à l'extérieur
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+    
+    // Fermer avec la touche Escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+  }
+
+  // Fonction pour fermer le modal
+  function closeModal() {
+    const modal = document.getElementById('tool-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Fonction pour formater les noms de fonctionnalités
+  function formatFeatureName(name) {
+    const nameMap = {
+      'fraispaiement': 'Frais de paiement',
+      'synchronisation': 'Synchronisation',
+      'systemecaisse': 'Système de caisse',
+      'terminal': 'Terminal de paiement',
+      'logiciel': 'Logiciel intégré',
+      'plusieurscomptes': 'Plusieurs comptes utilisateurs',
+      'synchroboutique': 'Synchronisation boutique',
+      'commissionpersonalisee': 'Commission personnalisée',
+      'repartitionpaiements': 'Répartition des paiements',
+      'datelimite': 'Date limite',
+      'cliccollect': 'Click & Collect',
+      'zonelivraison': 'Zone de livraison',
+      'solutionlogistique': 'Solution logistique',
+      'colivraison': 'Co-livraison',
+      'partenairesemballage': 'Partenaires emballage',
+      'facturation': 'Facturation',
+      'bonslivraison': 'Bons de livraison',
+      'contractualisation': 'Contractualisation',
+      'reduc': 'Réductions',
+      'bdd': 'Base de données',
+      'notation': 'Notation',
+      'pagepersonnalise': 'Page personnalisée',
+      'url': 'URL personnalisée',
+      'seo': 'Optimisation SEO',
+      'socialnetworks': 'Réseaux sociaux',
+      'emailing': 'Emailing',
+      'messagerie': 'Messagerie',
+      'com': 'Communication',
+      'carte': 'Carte interactive',
+      'label': 'Labellisation',
+      'repartitioncouts': 'Répartition des coûts',
+      'empreinte': 'Empreinte environnementale'
+    };
+    
+    return nameMap[name] || name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  // Obtenir le numéro de description associé à une fonctionnalité
+  function getDescriptionNumber(feature) {
+    const descriptionMap = {
+      'fraispaiement': '7',
+      'synchronisation': '7',
+      'systemecaisse': '7',
+      'terminal': '7',
+      'logiciel': '7',
+      'plusieurscomptes': '7',
+      'synchroboutique': '7',
+      'commissionpersonalisee': '7',
+      'repartitionpaiements': '7',
+      'datelimite': '7',
+      'cliccollect': '8',
+      'zonelivraison': '8',
+      'solutionlogistique': '8',
+      'colivraison': '8',
+      'partenairesemballage': '8',
+      'facturation': '9',
+      'bonslivraison': '9',
+      'contractualisation': '9',
+      'reduc': '9',
+      'bdd': '9',
+      'notation': '9',
+      'pagepersonnalise': '10',
+      'url': '10',
+      'seo': '10',
+      'socialnetworks': '10',
+      'emailing': '10',
+      'messagerie': '10',
+      'com': '10',
+      'carte': '10',
+      'label': '10',
+      'repartitioncouts': '10',
+      'empreinte': '10'
+    };
+    
+    return descriptionMap[feature] || '';
+  }
+
+  // Formater le texte avec des paragraphes
+  function formatTextWithParagraphs(text) {
+    if (!text) return '';
+    return text.replace(/\r\n|\n/g, '<br>');
+  }
+
+  // Formater les nombres avec des séparateurs de milliers
+  function formatNumber(num) {
+    if (!num) return '0';
+    return parseInt(num).toLocaleString('fr-FR');
   }
 
   // Écoute des changements sur les filtres
