@@ -644,7 +644,7 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="feature-item">
             <div class="feature-title">Produits commercialisés</div>
             <div class="feature-description">
-              ${getProductTypesWithIcons(itemData.checkboxListeProduitcommercialiseid_produitscommercial
+              ${getProductTypesWithIcons(itemData.checkboxListeProduitcommercialiseid_produitscommercialises)}
             </div>
           </div>
         </div>
