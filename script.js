@@ -132,97 +132,103 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.removeChild(link);
   }
   
- // Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
-function getFilteredItems() {
-  // Récupération des critères sélectionnés pour chaque filtre
-  const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
-  const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
-  const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-  const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
-  const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
-  const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
-  
-  // Calculer le nombre total de modalités sélectionnées
-  const totalSelectedModalites = selectedPlatforms.length + selectedClients.length + selectedCouts.length + selectedRegions.length;
-  
-  // Calculer le score de correspondance pour chaque item
-  const scoredItems = allData.map(item => {
-    let matchScore = 0;
-    let matches = true;
+  // Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
+  function getFilteredItems() {
+    // Récupération des critères sélectionnés pour chaque filtre
+    const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+    const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
+    const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+    const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
+    const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
+    const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
     
-    // Vérifier la correspondance avec le filtre de texte (obligatoire)
-    const matchesSearch = searchFilter(searchText)(item);
-    if (!matchesSearch) {
-      matches = false;
-    }
+    // Calculer le nombre total de groupes de filtres actifs
+    const totalActiveFilters = 
+      (selectedPlatforms.length > 0 ? 1 : 0) +
+      (selectedClients.length > 0 ? 1 : 0) +
+      (selectedCouts.length > 0 ? 1 : 0) +
+      (selectedRegions.length > 0 ? 1 : 0);
     
-    // Calculer les correspondances pour chaque modalité de plateforme
-    if (selectedPlatforms.length > 0) {
-      if (selectedPlatforms.includes(item.listeListeTypeplateforme)) {
-        matchScore++;
-      } else {
+    // Calculer le nombre total de modalités sélectionnées
+    const totalSelectedModalites = selectedPlatforms.length + selectedClients.length + selectedCouts.length + selectedRegions.length;
+    
+    // Calculer le score de correspondance pour chaque item
+    const scoredItems = allData.map(item => {
+      let matchScore = 0;
+      let matches = true;
+      
+      // Vérifier la correspondance avec le filtre de texte (obligatoire)
+      const matchesSearch = searchFilter(searchText)(item);
+      if (!matchesSearch) {
         matches = false;
       }
-    }
-    
-    // Calculer les correspondances pour chaque modalité de client
-    if (selectedClients.length > 0) {
-      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-      // Compter chaque modalité de client qui correspond
-      const matchingClientsCount = itemClients.filter(client => selectedClients.includes(client)).length;
-      matchScore += matchingClientsCount;
       
-      // Si aucune modalité de client ne correspond, l'item ne correspond pas
-      if (matchingClientsCount === 0) {
-        matches = false;
-      }
-    }
-    
-    // Calculer les correspondances pour chaque modalité de coût
-    if (selectedCouts.length > 0) {
-      const itemCosts = (item.checkboxListeCoutplateformeid_coutplateforme || '').split(',').map(s => s.trim());
-      // Compter chaque modalité de coût qui correspond
-      const matchingCostsCount = itemCosts.filter(cost => selectedCouts.includes(cost)).length;
-      matchScore += matchingCostsCount;
-      
-      // Si aucune modalité de coût ne correspond, l'item ne correspond pas
-      if (matchingCostsCount === 0) {
-        matches = false;
-      }
-    }
-    
-    // Calculer les correspondances pour chaque modalité de région
-    if (selectedRegions.length > 0) {
-      let matchesRegion = false;
-      let matchingRegionsCount = 0;
-      
-      if (item.listeListeOuinonid_echellelocalisation === "1") {
-        // Échelle nationale - correspond à toutes les régions sélectionnées
-        matchesRegion = true;
-        matchingRegionsCount = selectedRegions.length; // Toutes les régions correspondent
-      } else if (item.listeListeOuinonid_echellelocalisation === "2") {
-        // Restriction géographique
-        const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
-        // Compter chaque modalité de région qui correspond
-        matchingRegionsCount = itemRegions.filter(region => selectedRegions.includes(region)).length;
-        matchesRegion = matchingRegionsCount > 0;
+      // Calculer les correspondances pour chaque modalité de plateforme
+      if (selectedPlatforms.length > 0) {
+        if (selectedPlatforms.includes(item.listeListeTypeplateforme)) {
+          matchScore++;
+        } else {
+          matches = false;
+        }
       }
       
-      matchScore += matchingRegionsCount;
-      if (!matchesRegion) {
-        matches = false;
+      // Calculer les correspondances pour chaque modalité de client
+      if (selectedClients.length > 0) {
+        const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+        // Compter chaque modalité de client qui correspond
+        const matchingClientsCount = itemClients.filter(client => selectedClients.includes(client)).length;
+        matchScore += matchingClientsCount;
+        
+        // Si aucune modalité de client ne correspond, l'item ne correspond pas
+        if (matchingClientsCount === 0) {
+          matches = false;
+        }
       }
-    }
-    
-    return {
-      data: item,
-      matchScore: matchScore,
-      totalModalites: totalSelectedModalites,
-      matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
-      matchPercentage: totalSelectedModalites > 0 ? (matchScore / totalSelectedModalites) * 100 : 100
-    };
-  });
-  
+      
+      // Calculer les correspondances pour chaque modalité de coût
+      if (selectedCouts.length > 0) {
+        const itemCosts = (item.checkboxListeCoutplateformeid_coutplateforme || '').split(',').map(s => s.trim());
+        // Compter chaque modalité de coût qui correspond
+        const matchingCostsCount = itemCosts.filter(cost => selectedCouts.includes(cost)).length;
+        matchScore += matchingCostsCount;
+        
+        // Si aucune modalité de coût ne correspond, l'item ne correspond pas
+        if (matchingCostsCount === 0) {
+          matches = false;
+        }
+      }
+      
+      // Calculer les correspondances pour chaque modalité de région
+      if (selectedRegions.length > 0) {
+        let matchesRegion = false;
+        let matchingRegionsCount = 0;
+        
+        if (item.listeListeOuinonid_echellelocalisation === "1") {
+          // Échelle nationale - correspond à toutes les régions sélectionnées
+          matchesRegion = true;
+          matchingRegionsCount = selectedRegions.length; // Toutes les régions correspondent
+        } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+          // Restriction géographique
+          const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+          // Compter chaque modalité de région qui correspond
+          matchingRegionsCount = itemRegions.filter(region => selectedRegions.includes(region)).length;
+          matchesRegion = matchingRegionsCount > 0;
+        }
+        
+        matchScore += matchingRegionsCount;
+        if (!matchesRegion) {
+          matches = false;
+        }
+      }
+      
+      return {
+        data: item,
+        matchScore: matchScore,
+        totalModalites: totalSelectedModalites,
+        matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
+        matchPercentage: totalSelectedModalites > 0 ? (matchScore / totalSelectedModalites) * 100 : 100
+      };
+    });
     
     // Séparer les éléments correspondants et non correspondants
     const matchingItems = scoredItems.filter(item => item.matches);
@@ -231,7 +237,7 @@ function getFilteredItems() {
     // Trier les éléments
     let sortedItems;
     
-    if (sortBy === 'relevance' || totalActiveFilters > 0) {
+    if (sortBy === 'relevance' && totalActiveFilters > 0) {
       // Trier par score de correspondance (décroissant) puis par titre
       sortedItems = [...matchingItems].sort((a, b) => {
         if (b.matchScore !== a.matchScore) {
@@ -299,7 +305,7 @@ function getFilteredItems() {
       }
       
       // Afficher toutes les fiches, correspondantes et non correspondantes
-      filteredItems.forEach(item => renderCard(item.data, item.matches, totalActiveFilters, item.matchScore));
+      filteredItems.forEach(item => renderCard(item));
     }, 100); // Délai court pour permettre l'affichage du loader
   }
   
@@ -384,73 +390,74 @@ function getFilteredItems() {
            text.substring(index + searchTerm.length);
   }
 
- function renderCard(item, isMatched, totalActiveFilters, matchedCount) {
-  const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
-  
-  // Préparer les données de la carte
-  const title = item.bf_titre || 'Sans titre';
-  const description = item.bf_descriptiongenerale ? getFirstSentence(item.bf_descriptiongenerale) : 'Description non disponible';
-  const platformType = getPlatformType(item.listeListeTypeplateforme);
-  const anneeCreation = getYearFromNumber(item.listeListeAnneeDeMiseEnLigne);
-  const typeClients = getClientTypes(item.checkboxListeTypeclientid_typeclient);
-  const ficheUrl = `https://www.oad-venteenligne.org/?${item.id_fiche}`;
-  const imageUrl = item.imagebf_image 
-                  ? `https://www.oad-venteenligne.org/cache/vignette_${item.imagebf_image}` 
-                  : 'https://via.placeholder.com/100?text=Logo';
-  
-  // Mettre en surbrillance les termes recherchés
-  const highlightedTitle = highlightText(title, searchTerm);
-  const highlightedDescription = highlightText(description, searchTerm);
+  function renderCard(item) {
+    const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
+    
+    // Préparer les données de la carte
+    const title = item.data.bf_titre || 'Sans titre';
+    const description = item.data.bf_descriptiongenerale ? getFirstSentence(item.data.bf_descriptiongenerale) : 'Description non disponible';
+    const platformType = getPlatformType(item.data.listeListeTypeplateforme);
+    const anneeCreation = getYearFromNumber(item.data.listeListeAnneeDeMiseEnLigne);
+    const typeClients = getClientTypes(item.data.checkboxListeTypeclientid_typeclient);
+    const ficheUrl = `https://www.oad-venteenligne.org/?${item.data.id_fiche}`;
+    const imageUrl = item.data.imagebf_image 
+                    ? `https://www.oad-venteenligne.org/cache/vignette_${item.data.imagebf_image}` 
+                    : 'https://via.placeholder.com/100?text=Logo';
+    
+    // Mettre en surbrillance les termes recherchés
+    const highlightedTitle = highlightText(title, searchTerm);
+    const highlightedDescription = highlightText(description, searchTerm);
 
-  // Définir le style directement si non correspondant
-  const unmatchedStyle = !isMatched ? 
-    'filter: grayscale(100%);' : '';
-  const unmatchedBadge = !isMatched ? 
-    `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
-    font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
-    Ne correspond pas aux filtres</div>` : '';
-  
-  // Créer la carte avec structure verticale
-  const card = document.createElement("div");
-  card.className = "tool-card";
-  card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
-  
-  // Appliquer le style directement
-  card.style = unmatchedStyle;
-  
-  card.innerHTML = `
-    ${unmatchedBadge}
-    <div class="card-left" style="${!isMatched ? 'filter: grayscale(100%);' : ''}">
-      <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
-      <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
-      ${totalModalites > 0 
-        ? `<div class="match-info">${matchedCount} modalité${matchedCount > 1 ? 's' : ''} sur ${totalModalites}</div>`
-        : ''
-      }
-    </div>
-    <div class="card-right">
-      <h2 class="tool-title" style="${!isMatched ? 'color: #777;' : ''}">${highlightedTitle}</h2>
-      <p class="tool-description" style="${!isMatched ? 'color: #888;' : ''}">${highlightedDescription}</p>
-      <div class="highlight-box" style="${!isMatched ? 'background: #eee; border-left-color: #aaa;' : ''}">
-        <p><strong>Année de création :</strong> ${anneeCreation}</p>
-        <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
-        ${item.bf_urloutil 
-          ? `<p><strong>Site web :</strong> <a href="${item.bf_urloutil}" target="_blank" rel="noopener">${item.bf_urloutil}</a></p>` 
+    // Définir le style directement si non correspondant
+    const isMatched = item.matches;
+    const unmatchedStyle = !isMatched ? 
+      'filter: grayscale(100%);' : '';
+    const unmatchedBadge = !isMatched ? 
+      `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
+      font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
+      Ne correspond pas aux filtres</div>` : '';
+    
+    // Créer la carte avec structure verticale
+    const card = document.createElement("div");
+    card.className = "tool-card";
+    card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
+    
+    // Appliquer le style directement
+    card.style = unmatchedStyle;
+    
+    card.innerHTML = `
+      ${unmatchedBadge}
+      <div class="card-left" style="${!isMatched ? 'filter: grayscale(100%);' : ''}">
+        <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
+        <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
+        ${item.totalModalites > 0 
+          ? `<div class="match-info">${item.matchScore} modalité${item.matchScore > 1 ? 's' : ''} sur ${item.totalModalites}</div>`
           : ''
         }
       </div>
-      <button class="cta-button" style="${!isMatched ? 'background-color: #aaa;' : ''}" 
-        onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
-        En savoir plus
-      </button>
-    </div>
-  `;
-  
-  const container = document.getElementById("fiches-container");
-  if (container) {
-    container.appendChild(card);
+      <div class="card-right">
+        <h2 class="tool-title" style="${!isMatched ? 'color: #777;' : ''}">${highlightedTitle}</h2>
+        <p class="tool-description" style="${!isMatched ? 'color: #888;' : ''}">${highlightedDescription}</p>
+        <div class="highlight-box" style="${!isMatched ? 'background: #eee; border-left-color: #aaa;' : ''}">
+          <p><strong>Année de création :</strong> ${anneeCreation}</p>
+          <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
+          ${item.data.bf_urloutil 
+            ? `<p><strong>Site web :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil}</a></p>` 
+            : ''
+          }
+        </div>
+        <button class="cta-button" style="${!isMatched ? 'background-color: #aaa;' : ''}" 
+          onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
+          En savoir plus
+        </button>
+      </div>
+    `;
+    
+    const container = document.getElementById("fiches-container");
+    if (container) {
+      container.appendChild(card);
+    }
   }
-}
 
   // Chargement des données depuis l'API avec mise en cache
   function loadData() {
