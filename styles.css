@@ -1113,3 +1113,55 @@ label:hover {
   border-color: #37474F;
 }
 
+/* Style pour les fiches ne correspondant pas aux filtres */
+.tool-card.unmatched {
+  filter: grayscale(80%);
+  opacity: 0.6;
+  transform: scale(0.98);
+  transition: all 0.3s ease;
+}
+
+.tool-card.unmatched:hover {
+  filter: grayscale(50%);
+  opacity: 0.8;
+  transform: scale(0.99);
+}
+
+.tool-card.unmatched .tool-logo {
+  filter: grayscale(100%);
+}
+
+.tool-card.unmatched .tool-category {
+  background-color: #a0a0a0;
+  color: #fafafa;
+}
+
+.tool-card.unmatched .tool-title {
+  color: #666;
+}
+
+.tool-card.unmatched .cta-button {
+  background-color: #a0a0a0;
+}
+
+/* Mode sombre pour les cartes non correspondantes */
+.dark-mode .tool-card.unmatched {
+  background: #252525;
+  opacity: 0.6;
+}
+
+.dark-mode .tool-card.unmatched .card-left {
+  background: linear-gradient(to bottom, #181818, #202020);
+}
+
+.dark-mode .tool-card.unmatched .tool-title {
+  color: #999;
+}
+
+.dark-mode .tool-card.unmatched .tool-description {
+  color: #888;
+}
+
+.dark-mode .tool-card.unmatched .cta-button {
+  background-color: #555;
+}
