@@ -377,32 +377,36 @@ document.addEventListener("DOMContentLoaded", function() {
   const highlightedTitle = highlightText(title, searchTerm);
   const highlightedDescription = highlightText(description, searchTerm);
   
+  // Définir le style directement si non correspondant
+  const unmatchedStyle = !isMatched ? 
+    'filter: grayscale(100%); opacity: 0.5; transform: scale(0.97); position: relative;' : '';
+  const unmatchedBadge = !isMatched ? 
+    `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
+    font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
+    Ne correspond pas aux filtres</div>` : '';
+  
   // Créer la carte avec structure verticale
   const card = document.createElement("div");
-  
-  // Appliquer la classe correctement - s'assurer que isMatched est bien un booléen
-  if (isMatched === true) {
-    card.className = "tool-card";
-  } else {
-    card.className = "tool-card unmatched";
-    console.log("Carte non correspondante:", title); // Vérification en console
-  }
-  
+  card.className = "tool-card";
   card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
   
+  // Appliquer le style directement
+  card.style = unmatchedStyle;
+  
   card.innerHTML = `
-    <div class="card-left">
+    ${unmatchedBadge}
+    <div class="card-left" style="${!isMatched ? 'filter: grayscale(100%);' : ''}">
       <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
-      <div class="tool-category">${platformType}</div>
+      <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
       ${totalActiveFilters > 0 
         ? `<div class="match-info">${matchedCount} filtre${matchedCount > 1 ? 's' : ''} sur ${totalActiveFilters}</div>`
         : ''
       }
     </div>
     <div class="card-right">
-      <h2 class="tool-title">${highlightedTitle}</h2>
-      <p class="tool-description">${highlightedDescription}</p>
-      <div class="highlight-box">
+      <h2 class="tool-title" style="${!isMatched ? 'color: #777;' : ''}">${highlightedTitle}</h2>
+      <p class="tool-description" style="${!isMatched ? 'color: #888;' : ''}">${highlightedDescription}</p>
+      <div class="highlight-box" style="${!isMatched ? 'background: #eee; border-left-color: #aaa;' : ''}">
         <p><strong>Année de création :</strong> ${anneeCreation}</p>
         <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
         ${item.bf_urloutil 
@@ -410,7 +414,8 @@ document.addEventListener("DOMContentLoaded", function() {
           : ''
         }
       </div>
-      <button class="cta-button" onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
+      <button class="cta-button" style="${!isMatched ? 'background-color: #aaa;' : ''}" 
+        onclick="window.open('${ficheUrl}', '_blank')" aria-label="En savoir plus sur ${title}">
         En savoir plus
       </button>
     </div>
