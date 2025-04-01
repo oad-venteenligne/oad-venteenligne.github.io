@@ -211,7 +211,6 @@ h1 {
 /* Style pour les fiches ne correspondant pas aux filtres - SIMPLIFIÉ */
 .tool-card.unmatched {
   filter: grayscale(100%);
-  opacity: 0.7;
 }
 
 /* Styles pour les filtres */
