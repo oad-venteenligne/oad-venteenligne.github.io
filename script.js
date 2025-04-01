@@ -383,7 +383,7 @@ const scoredItems = allData.map(item => {
   
   // Définir le style directement si non correspondant
   const unmatchedStyle = !isMatched ? 
-    'filter: grayscale(100%); opacity: 0.5; transform: scale(0.97); position: relative;' : '';
+    'filter: grayscale(100%); position: relative;' : '';
   const unmatchedBadge = !isMatched ? 
     `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
     font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
