@@ -42,17 +42,17 @@ h1 {
   color: #2e7d32;
 }
 
-/* Conteneur des fiches en grille : 2 colonnes par défaut */
+/* Conteneur des fiches en grille */
 #fiches-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 25px;
   width: 100%;
   box-sizing: border-box;
 }
 
 /* Sur grand écran, 3 colonnes */
-@media (min-width: 1200px) {
+@media (min-width: 1600px) {
   #fiches-container {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -68,60 +68,44 @@ h1 {
 /* Styles des fiches (cards) */
 .tool-card {
   display: flex;
-  max-width: 550px;
+  flex-direction: column;
   width: 100%;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f0f0f0;
   position: relative;
-  animation: fadeIn 0.5s ease-out;
 }
 
 .tool-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(76, 175, 80, 0.15);
 }
 
-.tool-card:after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 5%;
-  width: 90%;
-  height: 10px;
-  background: rgba(0, 0, 0, 0.05);
-  filter: blur(10px);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.tool-card:hover:after {
-  opacity: 1;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+/* Partie supérieure de la carte */
 .card-left {
-  padding: 16px;
-  background-color: #f5f5f5;
+  padding: 25px 20px;
+  background: linear-gradient(to bottom, #f8f9fa, #e8f5e9);
   text-align: center;
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
 }
 
+/* Logo */
 .tool-logo {
-  max-width: 100px;
-  margin-bottom: 12px;
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
 }
 
@@ -129,31 +113,30 @@ h1 {
   transform: scale(1.05);
 }
 
+/* Catégorie */
 .tool-category {
-  background-color: #FFCC00;
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: #4caf50;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
   font-size: 12px;
-  text-transform: uppercase;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* Zone d'affichage du nombre de filtres correspondants */
 .match-info {
-  position: relative;
-  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-  border-radius: 16px;
-  padding: 3px 8px;
-  font-size: 10px;
-  font-weight: bold;
+  background: #f0f0f0;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 11px;
   color: #555;
-  margin-top: 10px;
-  text-align: center;
+  margin-top: 5px;
 }
 
+/* Partie inférieure de la carte */
 .card-right {
-  flex: 2;
+  flex: 1;
   padding: 20px;
   background: white;
   display: flex;
@@ -161,48 +144,54 @@ h1 {
   justify-content: space-between;
 }
 
-.highlight-box {
-  background: #f9f9f9;
-  padding: 12px;
-  border-left: 4px solid #4caf50;
-  border-radius: 8px;
-  margin: 10px 0;
-  font-size: 14px;
-  color: #333;
-}
-
+/* Titre */
 .tool-title {
-  font-size: 24px;
-  color: #333;
+  font-size: 22px;
+  color: #2e7d32;
   font-weight: bold;
-  margin: 0;
+  margin: 0 0 15px 0;
+  text-align: center;
 }
 
+/* Description */
 .tool-description {
   font-size: 14px;
+  line-height: 1.5;
   color: #555;
-  margin: 10px 0;
-  line-height: 1.4;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.highlight-match {
-  background-color: #FFEB3B;
-  padding: 0 2px;
-  border-radius: 2px;
+/* Encadré d'informations */
+.highlight-box {
+  background: #f9f9f9;
+  padding: 15px;
+  border-left: 4px solid #4caf50;
+  border-radius: 6px;
+  margin: 15px 0;
 }
 
+.highlight-box p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+/* Bouton */
 .cta-button {
   background: #4caf50;
   color: white;
-  padding: 8px 16px;
-  font-size: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
   text-transform: uppercase;
   font-weight: bold;
-  transition: background 0.3s ease, transform 0.2s ease;
-  align-self: flex-start;
+  transition: all 0.3s ease;
+  align-self: center;
+  margin-top: 15px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  width: 100%;
 }
 
 .cta-button:hover {
@@ -210,10 +199,19 @@ h1 {
   transform: translateY(-2px);
 }
 
-/* Style pour les fiches ne correspondant pas aux filtres */
+/* Mise en surbrillance des résultats de recherche */
+.highlight-match {
+  background-color: #FFEB3B;
+  color: #333;
+  padding: 0 3px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Style pour les fiches ne correspondant pas aux filtres - SIMPLIFIÉ */
 .tool-card.unmatched {
   filter: grayscale(100%);
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 /* Styles pour les filtres */
@@ -247,12 +245,6 @@ h1 {
   padding: 12px;
   border-left: 4px solid #e8e8e8;
   margin-left: 4px;
-  animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Style pour la barre de recherche */
@@ -292,39 +284,6 @@ label {
 
 label:hover {
   opacity: 0.8;
-}
-
-/* Style pour la carte de France cliquable */
-.department-map {
-  width: 100%;
-  margin-bottom: 15px;
-}
-
-#france-map {
-  width: 100%;
-  height: auto;
-}
-
-#france-map path {
-  fill: #E8F5E9;
-  stroke: #4caf50;
-  stroke-width: 1px;
-  cursor: pointer;
-  transition: fill 0.2s ease;
-}
-
-#france-map path:hover {
-  fill: #C8E6C9;
-}
-
-#france-map path.selected {
-  fill: #4CAF50;
-}
-
-.selected-departments {
-  font-size: 12px;
-  margin-top: 10px;
-  color: #666;
 }
 
 /* Indicateur de chargement */
@@ -382,7 +341,7 @@ label:hover {
   color: #666;
 }
 
-/* Mode sombre */
+/* Mode sombre - bouton toggle */
 .dark-mode-toggle {
   position: absolute;
   top: 10px;
@@ -404,10 +363,7 @@ label:hover {
   background-color: rgba(0,0,0,0.1);
 }
 
-.dark-mode .dark-mode-toggle:hover {
-  background-color: rgba(255,255,255,0.1);
-}
-
+/* Mode sombre - styles */
 .dark-mode {
   background: #121212;
 }
@@ -424,28 +380,33 @@ label:hover {
 
 .dark-mode .tool-card {
   background: #2d2d2d;
+  border-color: #333;
 }
 
 .dark-mode .card-left {
-  background: #1a1a1a;
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .tool-logo {
+  background: #222;
 }
 
 .dark-mode .card-right {
   background: #2d2d2d;
-  color: #e0e0e0;
 }
 
 .dark-mode .tool-title {
-  color: #ffffff;
+  color: #66bb6a;
 }
 
 .dark-mode .tool-description {
-  color: #bbbbbb;
+  color: #ddd;
 }
 
 .dark-mode .highlight-box {
-  background: #383838;
-  border-left: 4px solid #66bb6a;
+  background: #333;
+  border-left-color: #66bb6a;
 }
 
 .dark-mode .filter-header {
@@ -465,391 +426,8 @@ label:hover {
 
 /* Gestion du layout sur mobile */
 @media (max-width: 576px) {
-  .tool-card {
-    flex-direction: column;
-  }
-  
-  .card-left {
-    padding: 20px 10px;
-    width: 100%;
-  }
-  
-  .card-right {
-    padding: 15px;
-  }
-  
-  .tool-title {
-    font-size: 20px;
-  }
-  
   .export-button {
     width: 100%;
     justify-content: center;
   }
-}
-/* Styles améliorés pour les vignettes (cards) */
-
-/* Carte principale avec shadow et bordure plus subtile */
-.tool-card {
-  display: flex;
-  max-width: 550px;
-  width: 100%;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #f0f0f0;
-  margin-bottom: 10px;
-}
-
-.tool-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 35px rgba(76, 175, 80, 0.15);
-}
-
-/* Partie gauche redessinée avec meilleur espacement */
-.card-left {
-  padding: 20px 15px;
-  background: linear-gradient(to bottom, #f8f9fa, #e8f5e9);
-  text-align: center;
-  flex: 0 0 160px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-right: 1px solid #f0f0f0;
-}
-
-/* Image du logo améliorée */
-.tool-logo {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  padding: 10px;
-  margin-bottom: 15px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-}
-
-.tool-card:hover .tool-logo {
-  transform: scale(1.05);
-}
-
-/* Catégorie plus visible et stylisée */
-.tool-category {
-  background: #4caf50;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
-}
-
-/* Affichage du nombre de filtres plus élégant */
-.match-info {
-  margin-top: 12px;
-  background: #f5f5f5;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  color: #555;
-  border: 1px solid #e0e0e0;
-}
-
-/* Partie droite de la carte avec meilleur espacement et hiérarchie visuelle */
-.card-right {
-  flex: 1;
-  padding: 25px;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Titre plus grand et avec une couleur plus impactante */
-.tool-title {
-  font-size: 24px;
-  color: #2e7d32;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  line-height: 1.2;
-}
-
-/* Description plus lisible */
-.tool-description {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #555;
-  margin: 0 0 15px 0;
-}
-
-/* Encadré d'informations plus structuré */
-.highlight-box {
-  background: #f9fbf9;
-  padding: 15px;
-  border-left: 4px solid #4caf50;
-  border-radius: 8px;
-  margin: 15px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-.highlight-box p {
-  margin: 8px 0;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.highlight-box strong {
-  color: #2e7d32;
-  font-weight: 600;
-}
-
-/* Bouton d'action plus attractif */
-.cta-button {
-  background: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  align-self: flex-start;
-  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
-}
-
-.cta-button:hover {
-  background: #388e3c;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
-}
-
-/* Adaptation pour les écrans mobiles */
-@media (max-width: 768px) {
-  .tool-card {
-    flex-direction: column;
-  }
-  
-  .card-left {
-    padding: 25px 15px;
-    width: 100%;
-    flex: none;
-    border-right: none;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  .tool-logo {
-    width: 100px;
-    height: 100px;
-  }
-}
-
-/* Amélioration de l'accessibilité */
-.tool-card:focus {
-  outline: 2px solid #4caf50;
-  outline-offset: 2px;
-}
-
-/* Style spécifique pour la mise en surbrillance des résultats de recherche */
-.highlight-match {
-  background-color: #FFEB3B;
-  color: #333;
-  padding: 0 3px;
-  border-radius: 3px;
-  font-weight: 500;
-}
-/* Modification du layout de la grille pour améliorer la lisibilité */
-
-/* Réduire à 2 colonnes par défaut pour les écrans moyens et grands */
-#fiches-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Sur très grands écrans (>1600px), permettre 3 colonnes */
-@media (min-width: 1600px) {
-  #fiches-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Sur mobile, une seule colonne */
-@media (max-width: 768px) {
-  #fiches-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Style vertical pour les vignettes au lieu de horizontal */
-.tool-card {
-  display: flex;
-  flex-direction: column;
-  max-width: none;
-  width: 100%;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #f0f0f0;
-}
-
-.tool-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(76, 175, 80, 0.15);
-}
-
-/* Partie supérieure (anciennement gauche) redessinée */
-.card-left {
-  padding: 25px 20px;
-  background: linear-gradient(to bottom, #f8f9fa, #e8f5e9);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-/* Logo centré */
-.tool-logo {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  padding: 10px;
-  margin-bottom: 15px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* Style pour les badges de catégorie et filtres */
-.tool-category {
-  background: #4caf50;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.match-info {
-  background: #f0f0f0;
-  padding: 3px 10px;
-  border-radius: 15px;
-  font-size: 11px;
-  color: #555;
-  margin-top: 5px;
-}
-
-/* Partie inférieure (anciennement droite) avec plus d'espace */
-.card-right {
-  flex: 1;
-  padding: 20px;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Titre avec meilleure lisibilité */
-.tool-title {
-  font-size: 22px;
-  color: #2e7d32;
-  font-weight: bold;
-  margin: 0 0 15px 0;
-  text-align: center;
-}
-
-/* Description plus lisible */
-.tool-description {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #555;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-/* Encadré d'informations */
-.highlight-box {
-  background: #f9f9f9;
-  padding: 15px;
-  border-left: 4px solid #4caf50;
-  border-radius: 6px;
-  margin: 15px 0;
-}
-
-.highlight-box p {
-  margin: 6px 0;
-  font-size: 14px;
-}
-
-/* Bouton centré */
-.cta-button {
-  background: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  align-self: center;
-  margin-top: 15px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-  width: 100%;
-}
-
-.cta-button:hover {
-  background: #388e3c;
-  transform: translateY(-2px);
-}
-
-/* Style simplifié pour les fiches ne correspondant pas aux filtres */
-.tool-card.unmatched {
-  filter: grayscale(100%) !important; /* Uniquement noir et blanc */
-  opacity: 0.7 !important; /* Légère transparence */
-  transform: none !important; /* Supprimer toute transformation de taille */
-}
-
-/* Badge "Ne correspond pas" - optionnel */
-.tool-card.unmatched::before {
-  content: "Ne correspond pas aux filtres";
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 0 8px 0 8px;
-  z-index: 10;
-  font-weight: bold;
-}
-
-/* Au survol, garder la même taille */
-.tool-card.unmatched:hover {
-  filter: grayscale(70%) !important;
-  opacity: 0.8 !important;
-  transform: none !important; /* Forcer l'absence de transformation */
-}
-
-/* Supprimer toutes les transformations des éléments enfants */
-.tool-card.unmatched * {
-  transform: none !important;
 }
