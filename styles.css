@@ -461,3 +461,202 @@ label:hover {
 .tool-card.unmatched * {
   transition: none !important;
 }
+
+
+/* Styles pour le modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  position: relative;
+  background-color: white;
+  margin: 5% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 1000px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s;
+}
+
+/* Animation pour le modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Bouton de fermeture */
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: #777;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+/* Style pour les sections du modal */
+.modal-section {
+  margin-bottom: 25px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.modal-section:last-child {
+  border-bottom: none;
+}
+
+.modal-section h2 {
+  color: #2e7d32;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+/* Styles pour les champs */
+.modal-field {
+  margin-bottom: 10px;
+}
+
+.modal-field-name {
+  font-weight: bold;
+  color: #555;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.modal-field-value {
+  color: #333;
+}
+
+/* Grille pour l'affichage des caractéristiques */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.feature-item {
+  background: #f0f7f0;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 3px solid #4caf50;
+}
+
+.feature-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #2e7d32;
+}
+
+.feature-description {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Mode sombre pour le modal */
+.dark-mode .modal-content {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.dark-mode .close-modal {
+  color: #ccc;
+}
+
+.dark-mode .close-modal:hover {
+  color: #fff;
+}
+
+.dark-mode .modal-field-name {
+  color: #bbb;
+}
+
+.dark-mode .modal-field-value {
+  color: #e0e0e0;
+}
+
+.dark-mode .feature-item {
+  background: #383838;
+  border-left-color: #66bb6a;
+}
+
+.dark-mode .feature-title {
+  color: #66bb6a;
+}
+
+.dark-mode .feature-description {
+  color: #bbb;
+}
+
+.modal-logo {
+  max-width: 150px;
+  max-height: 150px;
+  display: block;
+  margin: 0 auto 20px;
+  object-fit: contain;
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.modal-header h1 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.modal-button {
+  background: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.modal-button:hover {
+  background: #388e3c;
+}
+
+.dark-mode .modal-button {
+  background: #66bb6a;
+}
+
+.dark-mode .modal-button:hover {
+  background: #4caf50;
+}
