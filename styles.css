@@ -820,17 +820,14 @@ label:hover {
   transform: translateY(-2px);
 }
 
-/* Styles renforcés pour les fiches ne correspondant pas aux filtres */
+/* Style simplifié pour les fiches ne correspondant pas aux filtres */
 .tool-card.unmatched {
-  filter: grayscale(100%) !important;
-  opacity: 0.4 !important;
-  background-color: #f0f0f0 !important;
-  border: 1px solid #e0e0e0 !important;
-  transform: scale(0.97) !important;
+  filter: grayscale(100%) !important; /* Conversion en noir et blanc */
+  opacity: 0.6 !important; /* Légère transparence */
   position: relative;
 }
 
-/* Badge "Ne correspond pas" */
+/* Badge "Ne correspond pas" - vous pouvez le garder ou le supprimer */
 .tool-card.unmatched::before {
   content: "Ne correspond pas aux filtres";
   position: absolute;
@@ -845,76 +842,31 @@ label:hover {
   font-weight: bold;
 }
 
+/* Effet au survol légèrement plus visible */
 .tool-card.unmatched:hover {
   filter: grayscale(70%) !important;
-  opacity: 0.7 !important;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05) !important;
+  opacity: 0.8 !important;
+  transform: translateY(-2px); /* Léger mouvement vers le haut au survol */
 }
 
+/* Suppression des styles trop agressifs */
 .tool-card.unmatched .card-left {
-  background: #e6e6e6 !important;
-  border-right: 1px solid #ddd !important;
+  /* Pas de modification de l'arrière-plan */
 }
 
 .tool-card.unmatched .tool-logo {
-  filter: grayscale(100%) !important;
-  opacity: 0.7 !important;
+  filter: grayscale(100%) !important; /* Garder les logos en noir et blanc */
 }
 
 .tool-card.unmatched .tool-category {
-  background-color: #aaa !important;
-  color: white !important;
+  opacity: 0.7; /* Juste légèrement atténué */
 }
 
 .tool-card.unmatched .card-right {
-  background-color: #f7f7f7 !important;
+  /* Pas de modification de l'arrière-plan */
 }
 
-.tool-card.unmatched .tool-title {
-  color: #777 !important;
-}
-
-.tool-card.unmatched .tool-description {
-  color: #888 !important;
-}
-
-.tool-card.unmatched .highlight-box {
-  background: #eee !important;
-  border-left: 4px solid #aaa !important;
-}
-
-.tool-card.unmatched .cta-button {
-  background-color: #aaa !important;
-  box-shadow: none !important;
-}
-
-/* Mode sombre */
+/* Réduire les changements de couleur en mode sombre */
 .dark-mode .tool-card.unmatched {
-  background: #2a2a2a !important;
-  border-color: #333 !important;
-}
-
-.dark-mode .tool-card.unmatched .card-left {
-  background: #222 !important;
-}
-
-.dark-mode .tool-card.unmatched .card-right {
-  background: #2a2a2a !important;
-}
-
-.dark-mode .tool-card.unmatched .highlight-box {
-  background: #333 !important;
-  border-left-color: #444 !important;
-}
-
-.dark-mode .tool-card.unmatched .tool-title {
-  color: #aaa !important;
-}
-
-.dark-mode .tool-card.unmatched .tool-description {
-  color: #999 !important;
-}
-
-.dark-mode .tool-card.unmatched::before {
-  background: rgba(255, 255, 255, 0.2);
+  opacity: 0.5 !important;
 }
