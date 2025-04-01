@@ -820,14 +820,13 @@ label:hover {
   transform: translateY(-2px);
 }
 
-/* Style simplifié pour les fiches ne correspondant pas aux filtres */
+/* Style minimaliste pour les fiches non correspondantes - uniquement noir et blanc */
 .tool-card.unmatched {
-  filter: grayscale(100%) !important; /* Conversion en noir et blanc */
-  opacity: 0.6 !important; /* Légère transparence */
-  position: relative;
+  filter: grayscale(100%);
+  opacity: 0.7;
 }
 
-/* Badge "Ne correspond pas" - vous pouvez le garder ou le supprimer */
+/* Optionnel : badge "Ne correspond pas" */
 .tool-card.unmatched::before {
   content: "Ne correspond pas aux filtres";
   position: absolute;
@@ -839,34 +838,4 @@ label:hover {
   padding: 2px 8px;
   border-radius: 0 8px 0 8px;
   z-index: 10;
-  font-weight: bold;
-}
-
-/* Effet au survol légèrement plus visible */
-.tool-card.unmatched:hover {
-  filter: grayscale(70%) !important;
-  opacity: 0.8 !important;
-  transform: translateY(-2px); /* Léger mouvement vers le haut au survol */
-}
-
-/* Suppression des styles trop agressifs */
-.tool-card.unmatched .card-left {
-  /* Pas de modification de l'arrière-plan */
-}
-
-.tool-card.unmatched .tool-logo {
-  filter: grayscale(100%) !important; /* Garder les logos en noir et blanc */
-}
-
-.tool-card.unmatched .tool-category {
-  opacity: 0.7; /* Juste légèrement atténué */
-}
-
-.tool-card.unmatched .card-right {
-  /* Pas de modification de l'arrière-plan */
-}
-
-/* Réduire les changements de couleur en mode sombre */
-.dark-mode .tool-card.unmatched {
-  opacity: 0.5 !important;
 }
