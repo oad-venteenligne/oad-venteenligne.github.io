@@ -82,6 +82,9 @@ document.addEventListener("DOMContentLoaded", function() {
         const yearB = parseInt(b.listeListeAnneeDeMiseEnLigne) || 0;
         return yearB - yearA; // Plus récent d'abord
       });
+    } else if (sortBy === 'relevance') {
+      // Le tri par pertinence est géré ailleurs
+      return items;
     }
     return items;
   }
@@ -89,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // Fonction d'exportation des résultats
   function exportResults() {
     // Récupérer les items filtrés
-    const filteredItems = getFilteredItems();
+    const filteredItems = getFilteredItems().filteredData;
     
     if (filteredItems.length === 0) {
       alert('Aucun résultat à exporter.');
@@ -99,13 +102,13 @@ document.addEventListener("DOMContentLoaded", function() {
     // Préparer les données pour l'export
     const csvData = filteredItems.map(item => {
       return {
-        'Nom': item.bf_titre || '',
-        'Type': getPlatformType(item.listeListeTypeplateforme) || '',
-        'Description': (item.bf_descriptiongenerale || '').replace(/"/g, '""'), // Échapper les guillemets
-        'Année': getYearFromNumber(item.listeListeAnneeDeMiseEnLigne) || '',
-        'URL': item.bf_urloutil || '',
-        'Type de clients': getClientTypes(item.checkboxListeTypeclientid_typeclient) || '',
-        'Coût': getCostType(item.checkboxListeCoutplateformeid_coutplateforme) || ''
+        'Nom': item.data.bf_titre || '',
+        'Type': getPlatformType(item.data.listeListeTypeplateforme) || '',
+        'Description': (item.data.bf_descriptiongenerale || '').replace(/"/g, '""'), // Échapper les guillemets
+        'Année': getYearFromNumber(item.data.listeListeAnneeDeMiseEnLigne) || '',
+        'URL': item.data.bf_urloutil || '',
+        'Type de clients': getClientTypes(item.data.checkboxListeTypeclientid_typeclient) || '',
+        'Coût': getCostType(item.data.checkboxListeCoutplateformeid_coutplateforme) || ''
       };
     });
     
@@ -129,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.removeChild(link);
   }
   
-  // Fonction pour obtenir les items filtrés actuels
+  // Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
   function getFilteredItems() {
     // Récupération des critères sélectionnés pour chaque filtre
     const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
@@ -139,45 +142,98 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
     const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
     
-    // Appliquer tous les filtres
-    let filteredItems = allData.filter(item => {
-      // Filtre par type de plateforme
-      const matchesPlatform = selectedPlatforms.length === 0 || selectedPlatforms.includes(item.listeListeTypeplateforme);
+    // Calculer le nombre total de groupes de filtres actifs
+    const totalActiveFilters = 
+      (selectedPlatforms.length > 0 ? 1 : 0) +
+      (selectedClients.length > 0 ? 1 : 0) +
+      (selectedCouts.length > 0 ? 1 : 0) +
+      (selectedRegions.length > 0 ? 1 : 0);
+    
+    // Calculer le score de correspondance pour chaque item
+    const scoredItems = allData.map(item => {
+      let matchScore = 0;
+      let matches = true;
       
-      // Filtre par type de client
-      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-      const matchesClient = selectedClients.length === 0 || 
-                          itemClients.some(client => selectedClients.includes(client));
-      
-      // Filtre par coût
-      const matchesCout = selectedCouts.length === 0 || 
-                        selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
-      
-      // Filtre par région (nouvelle logique)
-      let matchesRegion = true;
-      if (selectedRegions.length > 0) {
-        // Si la plateforme est à l'échelle nationale (1), elle correspond à toute région
-        if (item.listeListeOuinonid_echellelocalisation === "1") {
-          matchesRegion = true;
-        } else if (item.listeListeOuinonid_echellelocalisation === "2") {
-          // Si la plateforme a une restriction géographique (2), vérifier les régions
-          const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
-          matchesRegion = itemRegions.some(region => selectedRegions.includes(region));
-        } else {
-          // Par défaut (si pas d'information), on considère que ça match
-          matchesRegion = true;
-        }
+      // Vérifier la correspondance avec le filtre de texte (obligatoire)
+      const matchesSearch = searchFilter(searchText)(item);
+      if (!matchesSearch) {
+        matches = false;
       }
       
-      // Filtre par texte de recherche
-      const matchesSearch = searchFilter(searchText)(item);
+      // Calculer les correspondances pour chaque filtre
+      if (selectedPlatforms.length > 0) {
+        const matchesPlatform = selectedPlatforms.includes(item.listeListeTypeplateforme);
+        if (matchesPlatform) matchScore++;
+      }
       
-      // Combiner tous les filtres (ET logique)
-      return matchesPlatform && matchesClient && matchesCout && matchesRegion && matchesSearch;
+      if (selectedClients.length > 0) {
+        const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+        const matchesClient = itemClients.some(client => selectedClients.includes(client));
+        if (matchesClient) matchScore++;
+      }
+      
+      if (selectedCouts.length > 0) {
+        const matchesCout = selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme);
+        if (matchesCout) matchScore++;
+      }
+      
+      if (selectedRegions.length > 0) {
+        let matchesRegion = false;
+        if (item.listeListeOuinonid_echellelocalisation === "1") {
+          // Échelle nationale
+          matchesRegion = true;
+        } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+          // Restriction géographique
+          const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+          matchesRegion = itemRegions.some(region => selectedRegions.includes(region));
+        }
+        if (matchesRegion) matchScore++;
+      }
+      
+      return {
+        data: item,
+        matchScore: matchScore,
+        totalScore: totalActiveFilters,
+        matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
+        matchPercentage: totalActiveFilters > 0 ? (matchScore / totalActiveFilters) * 100 : 100
+      };
     });
     
-    // Trier les résultats
-    return sortItems(filteredItems, sortBy);
+    // Séparer les éléments correspondants et non correspondants
+    const matchingItems = scoredItems.filter(item => item.matches);
+    const nonMatchingItems = scoredItems.filter(item => !item.matches);
+    
+    // Trier les éléments
+    let sortedItems;
+    
+    if (sortBy === 'relevance' || totalActiveFilters > 0) {
+      // Trier par score de correspondance (décroissant) puis par titre
+      sortedItems = [...matchingItems].sort((a, b) => {
+        if (b.matchScore !== a.matchScore) {
+          return b.matchScore - a.matchScore; // Trier par score de correspondance décroissant
+        }
+        return a.data.bf_titre.localeCompare(b.data.bf_titre); // Puis par ordre alphabétique
+      });
+    } else {
+      // Utiliser le tri standard
+      const sortedMatching = sortItems(matchingItems.map(item => item.data), sortBy).map(item => {
+        return scoredItems.find(scored => scored.data === item);
+      });
+      sortedItems = sortedMatching;
+    }
+    
+    // Ajouter les éléments non correspondants à la fin, triés alphabétiquement
+    const sortedNonMatching = nonMatchingItems.sort((a, b) => 
+      a.data.bf_titre.localeCompare(b.data.bf_titre)
+    );
+    
+    // Combiner les résultats
+    const allSortedItems = [...sortedItems, ...sortedNonMatching];
+    
+    return {
+      filteredData: allSortedItems,
+      totalActiveFilters: totalActiveFilters
+    };
   }
 
   // Fonction de mise à jour de l'affichage des fiches
@@ -195,11 +251,14 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Utiliser setTimeout pour permettre au DOM de se rafraîchir et montrer le loader
     setTimeout(() => {
-      // Récupérer les items filtrés et triés
-      const filteredItems = getFilteredItems();
+      // Récupérer les items filtrés et triés avec leurs scores
+      const result = getFilteredItems();
+      const filteredItems = result.filteredData;
+      const totalActiveFilters = result.totalActiveFilters;
       
-      // Afficher le nombre de résultats
-      updateResultsCount(filteredItems.length);
+      // Afficher le nombre de résultats correspondants
+      const matchingCount = filteredItems.filter(item => item.matches).length;
+      updateResultsCount(matchingCount, filteredItems.length);
       
       // Vider le conteneur
       container.innerHTML = '';
@@ -207,34 +266,31 @@ document.addEventListener("DOMContentLoaded", function() {
       if (filteredItems.length === 0) {
         container.innerHTML = `
           <div style="text-align: center; padding: 40px;">
-            <h3>Aucun résultat ne correspond à vos critères</h3>
-            <p>Essayez de modifier vos filtres ou votre recherche.</p>
+            <h3>Aucun résultat disponible</h3>
+            <p>Essayez de modifier votre recherche.</p>
           </div>
         `;
         return;
       }
       
-      // Calcul du nombre total de groupes de filtres actifs
-      const totalActiveFilters = 
-        (Array.from(document.querySelectorAll('.filter-platform:checked')).length > 0 ? 1 : 0) +
-        (Array.from(document.querySelectorAll('.filter-client:checked')).length > 0 ? 1 : 0) +
-        (Array.from(document.querySelectorAll('.filter-cout:checked')).length > 0 ? 1 : 0) +
-        (Array.from(document.querySelectorAll('.filter-region:checked')).length > 0 ? 1 : 0);
-      
-      // Afficher les fiches filtrées
-      filteredItems.forEach(item => renderCard(item, true, totalActiveFilters));
+      // Afficher toutes les fiches, correspondantes et non correspondantes
+      filteredItems.forEach(item => renderCard(item.data, item.matches, totalActiveFilters, item.matchScore));
     }, 100); // Délai court pour permettre l'affichage du loader
   }
   
   // Mise à jour du compteur de résultats
-  function updateResultsCount(count) {
+  function updateResultsCount(matchingCount, totalCount) {
     const resultsStats = document.getElementById("results-stats");
     if (!resultsStats) {
       console.error("L'élément 'results-stats' n'existe pas.");
       return;
     }
     
-    resultsStats.innerHTML = `<div>${count} outil${count > 1 ? 's' : ''} trouvé${count > 1 ? 's' : ''}</div>`;
+    if (matchingCount < totalCount) {
+      resultsStats.innerHTML = `<div>${matchingCount} outil${matchingCount > 1 ? 's' : ''} correspondant${matchingCount > 1 ? 's' : ''} sur ${totalCount} au total</div>`;
+    } else {
+      resultsStats.innerHTML = `<div>${totalCount} outil${totalCount > 1 ? 's' : ''} trouvé${totalCount > 1 ? 's' : ''}</div>`;
+    }
   }
 
   // Fonctions utilitaires
@@ -303,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
            text.substring(index + searchTerm.length);
   }
 
-  function renderCard(item, isMatched, totalActiveFilters) {
+  function renderCard(item, isMatched, totalActiveFilters, matchedCount) {
     const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
     
     // Préparer les données de la carte
@@ -321,42 +377,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const highlightedTitle = highlightText(title, searchTerm);
     const highlightedDescription = highlightText(description, searchTerm);
     
-    // Calculer les filtres correspondants
-    let matchedCount = 0;
-    const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
-    const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
-    const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-    const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
-    
-    if (selectedPlatforms.length > 0 && selectedPlatforms.includes(item.listeListeTypeplateforme)) {
-      matchedCount++;
-    }
-    
-    if (selectedClients.length > 0) {
-      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-      if (itemClients.some(client => selectedClients.includes(client))) {
-        matchedCount++;
-      }
-    }
-    
-    if (selectedCouts.length > 0 && selectedCouts.includes(item.checkboxListeCoutplateformeid_coutplateforme)) {
-      matchedCount++;
-    }
-    
-    // Vérification si la plateforme correspond aux régions sélectionnées
-    if (selectedRegions.length > 0) {
-      if (item.listeListeOuinonid_echellelocalisation === "1") {
-        // Échelle nationale
-        matchedCount++;
-      } else if (item.listeListeOuinonid_echellelocalisation === "2") {
-        // Restriction géographique
-        const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
-        if (itemRegions.some(region => selectedRegions.includes(region))) {
-          matchedCount++;
-        }
-      }
-    }
-    
     // Créer la carte avec structure verticale
     const card = document.createElement("div");
     card.className = isMatched ? "tool-card" : "tool-card unmatched";
@@ -367,7 +387,7 @@ document.addEventListener("DOMContentLoaded", function() {
         <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
         <div class="tool-category">${platformType}</div>
         ${totalActiveFilters > 0 
-          ? `<div class="match-info">${matchedCount} filtres sur ${totalActiveFilters}</div>`
+          ? `<div class="match-info">${matchedCount} filtre${matchedCount > 1 ? 's' : ''} sur ${totalActiveFilters}</div>`
           : ''
         }
       </div>
