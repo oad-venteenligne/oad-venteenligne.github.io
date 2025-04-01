@@ -430,3 +430,34 @@ label:hover {
     justify-content: center;
   }
 }
+
+/* Reset complet pour les fiches non correspondantes - UNIQUEMENT NOIR ET BLANC */
+.tool-card.unmatched {
+  filter: grayscale(100%) !important;
+  
+  /* Désactiver explicitement toutes les transitions et transformations */
+  transition: none !important;
+  transform: none !important;
+  animation: none !important;
+  
+  /* Désactiver explicitement les propriétés qui pourraient causer un flou */
+  opacity: 1 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important; /* Même ombre que les cartes normales */
+  
+  /* Conserver la même taille et position */
+  transform: translateY(0) !important;
+  scale: 1 !important;
+}
+
+/* S'assurer que le survol ne change rien */
+.tool-card.unmatched:hover {
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Empêcher tout changement sur les éléments enfants */
+.tool-card.unmatched * {
+  transition: none !important;
+}
