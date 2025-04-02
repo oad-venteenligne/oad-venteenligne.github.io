@@ -628,10 +628,10 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     `;
     
-    // Clientèle, coûts et produits
+    // Echelle géo, produits, types de clients, coût de l'outil, support numérique
     content += `
       <div class="modal-section">
-        <h2>Clientèle et produits</h2>
+        <h2>Positionnement de l'Outil</h2>
         <div class="features-grid">
           <div class="feature-item">
             <div class="feature-title">Type d'acheteurs</div>
