@@ -505,36 +505,43 @@ return {
     const matchingItems = scoredItems.filter(item => item.matches);
     const nonMatchingItems = scoredItems.filter(item => !item.matches);
     
-    // Trier les éléments
-    let sortedItems;
-    
+// Trier les éléments
+let sortedItems;
+
 if (sortBy === 'relevance' && totalActiveFilters > 0) {
   // Trier par pourcentage de correspondance (décroissant) puis par titre
   sortedItems = [...matchingItems].sort((a, b) => {
-    if (b.matchPercentage !== a.matchPercentage) {
-      return b.matchPercentage - a.matchPercentage; // Trier par pourcentage de correspondance décroissant
+    // Calculer les pourcentages pour comparer
+    const percentA = a.matchScore / a.totalModalites * 100;
+    const percentB = b.matchScore / b.totalModalites * 100;
+    
+    // Comparer d'abord par pourcentage
+    if (percentB !== percentA) {
+      return percentB - percentA;
     }
+    
+    // Si pourcentages égaux, trier par ordre alphabétique
     return a.data.bf_titre && b.data.bf_titre ? 
       a.data.bf_titre.localeCompare(b.data.bf_titre) : 
-      !a.data.bf_titre ? 1 : -1; // Puis par ordre alphabétique
+      !a.data.bf_titre ? 1 : -1;
   });
-    } else {
-      // Utiliser le tri standard
-      const sortedMatching = sortItems(matchingItems.map(item => item.data), sortBy).map(item => {
-        return scoredItems.find(scored => scored.data === item);
-      });
-      sortedItems = sortedMatching;
-    }
-    
-    // Ajouter les éléments non correspondants à la fin, triés alphabétiquement
-    const sortedNonMatching = nonMatchingItems.sort((a, b) => 
-      a.data.bf_titre && b.data.bf_titre ? 
-        a.data.bf_titre.localeCompare(b.data.bf_titre) : 
-        !a.data.bf_titre ? 1 : -1
-    );
-    
-    // Combiner les résultats
-    const allSortedItems = [...sortedItems, ...sortedNonMatching];
+} else {
+  // Utiliser le tri standard
+  const sortedMatching = sortItems(matchingItems.map(item => item.data), sortBy).map(item => {
+    return scoredItems.find(scored => scored.data === item);
+  });
+  sortedItems = sortedMatching;
+}
+
+// Ajouter les éléments non correspondants à la fin, triés alphabétiquement
+const sortedNonMatching = nonMatchingItems.sort((a, b) => 
+  a.data.bf_titre && b.data.bf_titre ? 
+    a.data.bf_titre.localeCompare(b.data.bf_titre) : 
+    !a.data.bf_titre ? 1 : -1
+);
+
+// Combiner les résultats
+const allSortedItems = [...sortedItems, ...sortedNonMatching];
     
     return {
       filteredData: allSortedItems,
