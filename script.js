@@ -726,7 +726,373 @@ function updateDisplay() {
     return parseInt(num).toLocaleString('fr-FR');
   }
   
-  // Fonction pour afficher une carte
+// Cette fonction va nous permettre de générer l'affichage des modalités sélectionnées
+// avec une indication visuelle (barré ou non) si la modalité correspond à l'item
+
+function generateModalitesList(item) {
+  // Récupération des critères sélectionnés pour chaque filtre
+  const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+  const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
+  const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+  const selectedProduits = Array.from(document.querySelectorAll('.filter-produit:checked')).map(cb => cb.value);
+  const selectedSupports = Array.from(document.querySelectorAll('.filter-support:checked')).map(cb => cb.value);
+  const selectedModalites = Array.from(document.querySelectorAll('.filter-modalite:checked')).map(cb => cb.value);
+  const selectedSystemes = Array.from(document.querySelectorAll('.filter-systeme:checked')).map(cb => cb.value);
+  const selectedPaiements = Array.from(document.querySelectorAll('.filter-paiement:checked')).map(cb => cb.value);
+  const selectedCompatibilites = Array.from(document.querySelectorAll('.filter-compatibilite:checked')).map(cb => cb.value);
+  const selectedVentePlusieurs = Array.from(document.querySelectorAll('.filter-vente-plusieurs:checked')).map(cb => cb.value);
+  const selectedLogistique = Array.from(document.querySelectorAll('.filter-logistique:checked')).map(cb => cb.value);
+  const selectedGestion = Array.from(document.querySelectorAll('.filter-gestion:checked')).map(cb => cb.value);
+  const selectedCommunication = Array.from(document.querySelectorAll('.filter-communication:checked')).map(cb => cb.value);
+  
+  // Liste de toutes les modalités sélectionnées
+  const modalites = [];
+  
+  // Mappings pour obtenir les libellés correspondants
+  const platformTypes = {
+    "1": "Générateur de Boutique",
+    "2": "Place de Marché",
+    "3": "Outil de Gestion"
+  };
+  
+  const clientTypes = {
+    "1": "Consommateurs particuliers",
+    "2": "Restauration collective",
+    "3": "Restauration commerciale",
+    "4": "GMS",
+    "5": "Commerces de proximité",
+    "6": "Grossistes",
+    "7": "Transformateurs",
+    "8": "Producteurs"
+  };
+  
+  const coutTypes = {
+    "1": "Totalement gratuit",
+    "2": "Commission prélevée au producteur",
+    "3": "Abonnement / droit d'entrée pour le producteur",
+    "4": "Commission prélevée au consommateur",
+    "5": "Abonnement / droit d'entrée pour le consommateur"
+  };
+  
+  const produitTypes = {
+    "1": "Fruits et légumes",
+    "2": "Produits d'épicerie",
+    "3": "Produits carnés",
+    "4": "Produits de la pêche",
+    "5": "Produits laitiers",
+    "6": "Produits non alimentaires"
+  };
+  
+  const supportTypes = {
+    "1": "Site internet",
+    "2": "Application mobile"
+  };
+  
+  const modaliteTypes = {
+    "1": "Vente permanente",
+    "2": "Vente par sessions"
+  };
+  
+  const systemeTypes = {
+    "1": "Composition libre du panier",
+    "2": "Paniers pré-composés avec abonnement",
+    "3": "Paniers pré-composés sans abonnement"
+  };
+  
+  const paiementTypes = {
+    "1": "Paiement en ligne, à la commande",
+    "2": "Paiement à la livraison"
+  };
+  
+  const compatibiliteLabels = {
+    "synchronisation": "Synchronisation des stocks",
+    "systemecaisse": "Système de Caisse",
+    "terminal": "Terminal de Paiement",
+    "logiciel": "Logiciels de comptabilité"
+  };
+  
+  const ventePlusiursLabels = {
+    "plusieurscomptes": "Accès du compte à plusieurs",
+    "synchroboutique": "Synchronisation avec d'autres boutiques",
+    "commissionpersonalisee": "Commission personnalisée par producteur",
+    "repartitionpaiements": "Répartition des paiements",
+    "datelimite": "Paramétrage adapté à chaque producteur"
+  };
+  
+  const logistiqueLabels = {
+    "cliccollect": "Options de Clic-&-Collect",
+    "zonelivraison": "Paramétrages de zones de livraisons",
+    "solutionlogistique": "Partenariats solutions logistique",
+    "colivraison": "Système de co-livraison",
+    "partenairesemballage": "Partenariats emballage éco-responsable"
+  };
+  
+  const gestionLabels = {
+    "facturation": "Facturation",
+    "bonslivraison": "Bons de Commande / Bons de livraison",
+    "contractualisation": "Fonctionnalités de contractualisation",
+    "reduc": "Mise en place d'offres ou réductions",
+    "bdd": "Extraction BDD",
+    "notation": "Système de notation par les clients"
+  };
+  
+  const communicationLabels = {
+    "pagepersonnalise": "Graphisme personnalisé",
+    "url": "URL personnalisée",
+    "seo": "Support SEO et référencement",
+    "socialnetworks": "Intégration réseaux sociaux",
+    "emailing": "Emailing et notifications clients",
+    "messagerie": "Messagerie Instantanée",
+    "com": "Modèles PLV ou supports de com",
+    "carte": "Carte en ligne des producteurs"
+  };
+  
+  // Vérifier les modalités de type de plateforme
+  if (selectedPlatforms.length > 0) {
+    selectedPlatforms.forEach(platformId => {
+      const label = platformTypes[platformId];
+      const matches = platformId === item.data.listeListeTypeplateforme;
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Type d'outil"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de type de client
+  if (selectedClients.length > 0) {
+    const itemClients = (item.data.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+    
+    selectedClients.forEach(clientId => {
+      const label = clientTypes[clientId];
+      const matches = itemClients.includes(clientId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Type d'acheteurs"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de coût
+  if (selectedCouts.length > 0) {
+    const itemCouts = (item.data.checkboxListeCoutplateformeid_coutplateforme || '').split(',').map(s => s.trim());
+    
+    selectedCouts.forEach(coutId => {
+      const label = coutTypes[coutId];
+      const matches = itemCouts.includes(coutId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Coût de l'outil"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de produits
+  if (selectedProduits.length > 0) {
+    const itemProduits = (item.data.checkboxListeProduitcommercialiseid_produitscommercialises || '').split(',').map(s => s.trim());
+    
+    selectedProduits.forEach(produitId => {
+      const label = produitTypes[produitId];
+      const matches = itemProduits.includes(produitId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Produits commercialisés"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de support
+  if (selectedSupports.length > 0) {
+    const itemSupports = (item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme || '').split(',').map(s => s.trim());
+    
+    selectedSupports.forEach(supportId => {
+      const label = supportTypes[supportId];
+      const matches = itemSupports.includes(supportId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Type de support"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de vente
+  if (selectedModalites.length > 0) {
+    const itemModalites = (item.data.checkboxListeModaliteventeid_modalitevente || '').split(',').map(s => s.trim());
+    
+    selectedModalites.forEach(modaliteId => {
+      const label = modaliteTypes[modaliteId];
+      const matches = itemModalites.includes(modaliteId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Modalité de vente"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de système de commande
+  if (selectedSystemes.length > 0) {
+    const itemSystemes = (item.data.checkboxListeSystemecommandeid_systemecommande || '').split(',').map(s => s.trim());
+    
+    selectedSystemes.forEach(systemeId => {
+      const label = systemeTypes[systemeId];
+      const matches = itemSystemes.includes(systemeId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Système de commande"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de paiement
+  if (selectedPaiements.length > 0) {
+    const itemPaiements = (item.data.checkboxListeOptionpaiementid_optionpaiement || '').split(',').map(s => s.trim());
+    
+    selectedPaiements.forEach(paiementId => {
+      const label = paiementTypes[paiementId];
+      const matches = itemPaiements.includes(paiementId);
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Option de paiement"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de compatibilité
+  if (selectedCompatibilites.length > 0) {
+    selectedCompatibilites.forEach(compatibiliteId => {
+      const label = compatibiliteLabels[compatibiliteId];
+      const fieldName = ouiNonFiltres[compatibiliteId];
+      const matches = item.data[fieldName] === "2"; // 2 = Oui
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Compatibilité avec d'autres outils"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de vente à plusieurs
+  if (selectedVentePlusieurs.length > 0) {
+    selectedVentePlusieurs.forEach(ventePlusiersId => {
+      const label = ventePlusiursLabels[ventePlusiersId];
+      const fieldName = ouiNonFiltres[ventePlusiersId];
+      const matches = item.data[fieldName] === "2"; // 2 = Oui
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Fonctionnalités en cas de vente à plusieurs"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de logistique
+  if (selectedLogistique.length > 0) {
+    selectedLogistique.forEach(logistiqueId => {
+      const label = logistiqueLabels[logistiqueId];
+      const fieldName = ouiNonFiltres[logistiqueId];
+      const matches = item.data[fieldName] === "2"; // 2 = Oui
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Fonctionnalités Logistiques"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de gestion
+  if (selectedGestion.length > 0) {
+    selectedGestion.forEach(gestionId => {
+      const label = gestionLabels[gestionId];
+      const fieldName = ouiNonFiltres[gestionId];
+      const matches = item.data[fieldName] === "2"; // 2 = Oui
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Fonctionnalités de Gestion Commerciale"
+      });
+    });
+  }
+  
+  // Vérifier les modalités de communication
+  if (selectedCommunication.length > 0) {
+    selectedCommunication.forEach(communicationId => {
+      const label = communicationLabels[communicationId];
+      const fieldName = ouiNonFiltres[communicationId];
+      const matches = item.data[fieldName] === "2"; // 2 = Oui
+      
+      modalites.push({
+        label: label,
+        matches: matches,
+        category: "Fonctionnalités de Communication"
+      });
+    });
+  }
+  
+  // Si aucune modalité n'est sélectionnée, retourner une chaîne vide
+  if (modalites.length === 0) {
+    return '';
+  }
+  
+  // Grouper les modalités par catégorie
+  const categorizedModalites = {};
+  modalites.forEach(modalite => {
+    if (!categorizedModalites[modalite.category]) {
+      categorizedModalites[modalite.category] = [];
+    }
+    categorizedModalites[modalite.category].push(modalite);
+  });
+  
+  // Générer le HTML pour les modalités
+  let html = '<div class="modalites-list">';
+  
+  // Parcourir chaque catégorie
+  for (const category in categorizedModalites) {
+    html += `<div class="modalite-category"><strong>${category}</strong>: `;
+    
+    // Parcourir les modalités de cette catégorie
+    categorizedModalites[category].forEach((modalite, index) => {
+      // Ajouter la modalité avec ou sans style barré
+      if (modalite.matches) {
+        html += `<span class="modalite-match">${modalite.label}</span>`;
+      } else {
+        html += `<span class="modalite-no-match"><s>${modalite.label}</s></span>`;
+      }
+      
+      // Ajouter une virgule si ce n'est pas la dernière modalité
+      if (index < categorizedModalites[category].length - 1) {
+        html += ', ';
+      }
+    });
+    
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  
+  return html;
+}
+
+
 // Fonction pour afficher une carte
 function renderCard(item) {
   const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
@@ -775,6 +1141,68 @@ function renderCard(item) {
   const percentage = item.matchPercentage;
   const styles = getCardStyle(percentage);
 
+  // CSS pour les modalités
+  const modalitesCss = `
+    .modalites-list {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      font-size: 13px;
+      border-left: 3px solid #ccc;
+    }
+    
+    .modalite-category {
+      margin-bottom: 5px;
+    }
+    
+    .modalite-match {
+      font-weight: 500;
+      color: #4caf50;
+    }
+    
+    .modalite-no-match {
+      color: #9e9e9e;
+    }
+    
+    .modalites-toggle {
+      cursor: pointer;
+      display: block;
+      margin: 15px 0 5px 0;
+      font-size: 15px;
+      color: #555;
+      user-select: none;
+    }
+    
+    .modalites-toggle:hover {
+      color: #4caf50;
+    }
+    
+    .modalites-toggle::after {
+      content: " ▾";
+      font-size: 12px;
+    }
+    
+    .modalites-container[data-expanded="false"] .modalites-list {
+      display: none;
+    }
+    
+    .modalites-container[data-expanded="false"] .modalites-toggle::after {
+      content: " ▸";
+    }
+  `;
+
+  // Ajouter le style à la page si ce n'est pas déjà fait
+  if (!document.getElementById('modalites-css')) {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'modalites-css';
+    styleEl.textContent = modalitesCss;
+    document.head.appendChild(styleEl);
+  }
+
+  // Générer la liste des modalités
+  const modalitesList = generateModalitesList(item);
+
   // Créer la carte avec la nouvelle logique de style
   const card = document.createElement("div");
   card.className = "tool-card";
@@ -805,6 +1233,14 @@ function renderCard(item) {
           : ''
         }
       </div>
+      
+      ${modalitesList ? `
+      <div class="modalites-container" data-expanded="false">
+        <div class="modalites-toggle">Critères sélectionnés</div>
+        ${modalitesList}
+      </div>
+      ` : ''}
+      
       <button class="cta-button view-details" aria-label="Voir les détails de ${title}">
         Voir les détails
       </button>
@@ -818,6 +1254,18 @@ function renderCard(item) {
       e.preventDefault();
       e.stopPropagation();
       openToolModal(item.data);
+    });
+  }
+  
+  // Ajouter un écouteur pour le toggle des modalités
+  const modalitesToggle = card.querySelector('.modalites-toggle');
+  if (modalitesToggle) {
+    modalitesToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const container = this.closest('.modalites-container');
+      const isExpanded = container.getAttribute('data-expanded') === 'true';
+      container.setAttribute('data-expanded', !isExpanded);
     });
   }
   
