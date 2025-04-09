@@ -469,13 +469,36 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       }
       
-      return {
-        data: item,
-        matchScore: matchScore,
-        totalModalites: totalSelectedModalites,
-        matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
-        matchPercentage: totalSelectedModalites > 0 ? (matchScore / totalSelectedModalites) * 100 : 100
-      };
+// Ne pas inclure les filtres où l'item n'a pas de correspondance
+const activeFilterGroupCount = (
+  (selectedPlatforms.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedClients.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedCouts.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedRegions.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedProduits.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedSupports.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedModalites.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedSystemes.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedPaiements.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedCompatibilites.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedVentePlusieurs.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedLogistique.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedGestion.length > 0 && matchesSearch ? 1 : 0) +
+  (selectedCommunication.length > 0 && matchesSearch ? 1 : 0)
+);
+
+// Calculer le pourcentage seulement si des filtres sont actifs
+const calculatedMatchPercentage = totalSelectedModalites > 0 ? 
+  (matchScore / totalSelectedModalites) * 100 : 100;
+
+return {
+  data: item,
+  matchScore: matchScore,
+  totalModalites: totalSelectedModalites,
+  matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
+  matchPercentage: calculatedMatchPercentage,
+  activeFilterGroupCount: activeFilterGroupCount
+};
     });
     
     // Séparer les éléments correspondants et non correspondants
@@ -485,16 +508,16 @@ document.addEventListener("DOMContentLoaded", function() {
     // Trier les éléments
     let sortedItems;
     
-    if (sortBy === 'relevance' && totalActiveFilters > 0) {
-      // Trier par score de correspondance (décroissant) puis par titre
-      sortedItems = [...matchingItems].sort((a, b) => {
-        if (b.matchScore !== a.matchScore) {
-          return b.matchScore - a.matchScore; // Trier par score de correspondance décroissant
-        }
-        return a.data.bf_titre && b.data.bf_titre ? 
-          a.data.bf_titre.localeCompare(b.data.bf_titre) : 
-          !a.data.bf_titre ? 1 : -1; // Puis par ordre alphabétique
-      });
+if (sortBy === 'relevance' && totalActiveFilters > 0) {
+  // Trier par pourcentage de correspondance (décroissant) puis par titre
+  sortedItems = [...matchingItems].sort((a, b) => {
+    if (b.matchPercentage !== a.matchPercentage) {
+      return b.matchPercentage - a.matchPercentage; // Trier par pourcentage de correspondance décroissant
+    }
+    return a.data.bf_titre && b.data.bf_titre ? 
+      a.data.bf_titre.localeCompare(b.data.bf_titre) : 
+      !a.data.bf_titre ? 1 : -1; // Puis par ordre alphabétique
+  });
     } else {
       // Utiliser le tri standard
       const sortedMatching = sortItems(matchingItems.map(item => item.data), sortBy).map(item => {
@@ -822,10 +845,10 @@ document.addEventListener("DOMContentLoaded", function() {
       <div class="card-left" style="${!isMatched ? 'filter: grayscale(100%);' : ''}">
         <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
         <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
-        ${item.totalModalites > 0 
-          ? `<div class="match-info">${item.matchScore} critère${item.matchScore > 1 ? 's' : ''} sur ${item.totalModalites}</div>`
-          : ''
-        }
+      ${item.totalModalites > 0 
+        ? `<div class="match-info">${item.matchScore} critère${item.matchScore > 1 ? 's' : ''} sur ${item.totalModalites} (${Math.round(item.matchPercentage)}%)</div>`
+        : ''
+      }
       </div>
       <div class="card-right">
         <h2 class="tool-title" style="${!isMatched ? 'color: #777;' : ''}">${highlightedTitle}</h2>
