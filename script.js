@@ -75,7 +75,11 @@ document.addEventListener("DOMContentLoaded", function() {
   // Fonction pour trier les résultats
   function sortItems(items, sortBy) {
     if (sortBy === 'alpha') {
-      return [...items].sort((a, b) => a.bf_titre.localeCompare(b.bf_titre));
+      return [...items].sort((a, b) => {
+        if (!a.bf_titre) return 1;
+        if (!b.bf_titre) return -1;
+        return a.bf_titre.localeCompare(b.bf_titre);
+      });
     } else if (sortBy === 'year') {
       return [...items].sort((a, b) => {
         const yearA = parseInt(a.listeListeAnneeDeMiseEnLigne) || 0;
@@ -487,7 +491,9 @@ document.addEventListener("DOMContentLoaded", function() {
         if (b.matchScore !== a.matchScore) {
           return b.matchScore - a.matchScore; // Trier par score de correspondance décroissant
         }
-        return a.data.bf_titre.localeCompare(b.data.bf_titre); // Puis par ordre alphabétique
+        return a.data.bf_titre && b.data.bf_titre ? 
+          a.data.bf_titre.localeCompare(b.data.bf_titre) : 
+          !a.data.bf_titre ? 1 : -1; // Puis par ordre alphabétique
       });
     } else {
       // Utiliser le tri standard
@@ -499,7 +505,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Ajouter les éléments non correspondants à la fin, triés alphabétiquement
     const sortedNonMatching = nonMatchingItems.sort((a, b) => 
-      a.data.bf_titre.localeCompare(b.data.bf_titre)
+      a.data.bf_titre && b.data.bf_titre ? 
+        a.data.bf_titre.localeCompare(b.data.bf_titre) : 
+        !a.data.bf_titre ? 1 : -1
     );
     
     // Combiner les résultats
@@ -578,7 +586,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const types = {
       "1": "Générateur de Boutique",
       "2": "Place de Marché",
-      "3": "Outil de gestion"
+      "3": "Outil de Gestion"
     };
     return types[type] || "Type inconnu";
   }
@@ -590,17 +598,32 @@ document.addEventListener("DOMContentLoaded", function() {
       "1": "Consommateurs particuliers",
       "2": "Restauration collective",
       "3": "Restauration commerciale",
+      "4": "GMS",
+      "5": "Commerces de proximité",
+      "6": "Grossistes",
+      "7": "Transformateurs",
+      "8": "Producteurs"
+    };
+    
+    return clientTypes.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
+  }
+  
+  function getCostType(costType) {
+    if (!costType) return "Non renseigné";
+    
+    const types = {
+      "1": "Totalement gratuit",
+      "2": "Commission prélevée au producteur",
+      "3": "Abonnement / droit d'entrée pour le producteur",
       "4": "Commission prélevée au consommateur",
       "5": "Abonnement / droit d'entrée pour le consommateur"
     };
     
-    if (costType.includes(',')) {
-      return costType.split(',')
-        .map(id => types[id.trim()] || `Type ${id}`)
-        .join(', ');
-    }
-    
-    return types[costType] || "Non renseigné";
+    return costType.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
   }
   
   // Nouvelles fonctions pour les filtres ajoutés
@@ -676,7 +699,7 @@ document.addEventListener("DOMContentLoaded", function() {
   
   // Fonction pour obtenir les valeurs Oui/Non des fonctionnalités
   function getOuiNonValue(item, field) {
-    if (!item[field]) return "Non renseigné";
+    if (!item || !item[field]) return "Non renseigné";
     return item[field] === "2" ? "Oui" : "Non";
   }
   
@@ -823,100 +846,6 @@ document.addEventListener("DOMContentLoaded", function() {
         </button>
       </div>
     `;
-    
-    // Compatibilité et autres fonctionnalités
-    content += `
-      <div class="modal-section">
-        <h2>Compatibilité avec d'autres outils</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Synchronisation des stocks</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchronisation')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Système de Caisse</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_systemecaisse')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Terminal de Paiement</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_terminal')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Logiciels de comptabilité</div>
-            
-    
-    // Statistiques
-    content += `
-      <div class="modal-section">
-        <h2>Chiffres clés</h2>
-        <div class="features-grid">
-          ${itemData.bf_nbretp ? 
-            `<div class="feature-item">
-              <div class="feature-title">Équipe</div>
-              <div class="feature-description">${itemData.bf_nbretp}</div>
-            </div>` : ''
-          }
-          ${itemData.bf_nbr_producteurs ? 
-            `<div class="feature-item">
-              <div class="feature-title">Nombre de producteurs</div>
-              <div class="feature-description">${formatNumber(itemData.bf_nbr_producteurs)}</div>
-            </div>` : ''
-          }
-          ${itemData.bf_nbrclientsactifs ? 
-            `<div class="feature-item">
-              <div class="feature-title">Clients actifs</div>
-              <div class="feature-description">${formatNumber(itemData.bf_nbrclientsactifs)}</div>
-            </div>` : ''
-          }
-          ${itemData.bf_nbrvolume ? 
-            `<div class="feature-item">
-              <div class="feature-title">Volume d'affaires</div>
-              <div class="feature-description">${formatNumber(itemData.bf_nbrvolume)}€</div>
-            </div>` : ''
-          }
-        </div>
-      </div>
-    `;
-    
-    // Échelle géo, produits, types de clients, coût de l'outil, support numérique
-    content += `
-      <div class="modal-section">
-        <h2>Positionnement de l'Outil</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Type d'acheteurs</div>
-            <div class="feature-description">${getClientTypes(itemData.checkboxListeTypeclientid_typeclient)}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Coût</div>
-            <div class="feature-description">${getCostType(itemData.checkboxListeCoutplateformeid_coutplateforme)}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Produits commercialisés</div>
-            <div class="feature-description">
-              ${getProductTypesWithIcons(itemData.checkboxListeProduitcommercialiseid_produitscommercialises)}
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Type de support</div>
-            <div class="feature-description">${getSupportTypes(itemData.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Modalité de vente</div>
-            <div class="feature-description">${getModaliteVente(itemData.checkboxListeModaliteventeid_modalitevente)}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Système de commande</div>
-            <div class="feature-description">${getSystemeCommande(itemData.checkboxListeSystemecommandeid_systemecommande)}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Option de paiement</div>
-            <div class="feature-description">${getOptionPaiement(itemData.checkboxListeOptionpaiementid_optionpaiement)}</div>
-          </div>
-        </div>
-      </div>
-    `;
-    
     // Ajouter l'écouteur d'événement pour ouvrir le modal
     const viewDetailsBtn = card.querySelector('.view-details');
     if (viewDetailsBtn) {
@@ -954,10 +883,10 @@ function openToolModal(itemData) {
   let content = `
     <div class="modal-header">
       ${itemData.imagebf_image ? 
-        `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre}" class="modal-logo">` : 
+        `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre || 'Sans titre'}" class="modal-logo">` : 
         `<img src="https://via.placeholder.com/150?text=Logo" alt="Logo par défaut" class="modal-logo">`
       }
-      <h1>${itemData.bf_titre}</h1>
+      <h1>${itemData.bf_titre || 'Sans titre'}</h1>
       <p>${getPlatformType(itemData.listeListeTypeplateforme)}</p>
     </div>
   `;
@@ -968,7 +897,7 @@ function openToolModal(itemData) {
       <h2>Informations générales</h2>
       <div class="modal-field">
         <span class="modal-field-name">Description</span>
-        <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale)}</div>
+        <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale || 'Description non disponible')}</div>
       </div>
       ${itemData.bf_urloutil ? 
         `<div class="modal-field">
@@ -1344,3 +1273,5 @@ function loadData() {
 
 // Charger les données au démarrage
 loadData();
+
+});
