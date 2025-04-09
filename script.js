@@ -1093,6 +1093,7 @@ function generateModalitesList(item) {
 }
 
 // Fonction pour afficher une carte
+// Fonction pour afficher une carte
 function renderCard(item) {
   const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
   
@@ -1243,16 +1244,21 @@ function renderCard(item) {
       <h2 class="tool-title" style="${styles.textColor}">${highlightedTitle}</h2>
       <p class="tool-description" style="${styles.textColor}">${highlightedDescription}</p>
       
-      <div class="info-row">
-        <strong>Année :</strong> ${anneeCreation}
-        ${item.data.bf_urloutil 
-          ? `<span style="margin-left: 15px;"><strong>Site :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil.replace(/(https?:\/\/)?(www\.)?/i, '')}</a></span>` 
-          : ''
-        }
+      <div class="details-container" data-expanded="true">
+        <div class="details-toggle">Informations générales</div>
+        <div class="details-list">
+          <div class="details-category">
+            <p><strong>Année de création :</strong> ${anneeCreation}</p>
+            ${item.data.bf_urloutil 
+              ? `<p><strong>Site web :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil.replace(/(https?:\/\/)?(www\.)?/i, '')}</a></p>` 
+              : ''
+            }
+          </div>
+        </div>
       </div>
       
       <div class="details-container" data-expanded="true">
-        <div class="details-toggle">Détails et critères sélectionnés</div>
+        <div class="details-toggle">Critères sélectionnés</div>
         <div class="details-list">
           ${modalitesList ? modalitesList : '<p>Aucun critère sélectionné</p>'}
         </div>
