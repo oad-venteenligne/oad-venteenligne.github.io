@@ -1310,6 +1310,7 @@ function renderCard(item) {
  // ===== FONCTIONS DU MODAL =====
 
 // Fonction modifiée pour la génération du modal - filtrage des fonctionnalités "Oui"
+// Fonction pour ouvrir le modal avec les détails d'un outil
 function openToolModal(itemData) {
   const modal = document.getElementById('tool-modal');
   const modalBody = document.getElementById('modal-body');
@@ -1428,13 +1429,20 @@ function openToolModal(itemData) {
     </div>
   `;
   
-  // Fonction utilitaire pour générer une grille de fonctionnalités avec seulement les valeurs "Oui"
-  function generateFeaturesGridOuiOnly(features, title) {
-    // Filtrer pour ne garder que les fonctionnalités avec valeur "Oui"
-    const ouiFeatures = features.filter(feature => itemData[feature.field] === "2");
+  // MODIFICATION: Fonction pour vérifier si un élément est "Oui" (code 2)
+  const hasFeature = (itemData, fieldName) => {
+    return itemData[fieldName] === "2"; // 2 = Oui
+  };
+  
+  // MODIFICATION: Fonction pour générer une grid de fonctionnalités (uniquement les "Oui")
+  const generateFeaturesGrid = (itemData, features, title) => {
+    // Filtrer les fonctionnalités qui sont à "Oui"
+    const activeFeatures = features.filter(feature => hasFeature(itemData, feature.field));
     
-    // S'il n'y a aucune fonctionnalité "Oui", ne pas afficher la section
-    if (ouiFeatures.length === 0) return '';
+    // Ne pas afficher la section si aucune fonctionnalité n'est active
+    if (activeFeatures.length === 0) {
+      return '';
+    }
     
     let html = `
       <div class="modal-section">
@@ -1442,7 +1450,8 @@ function openToolModal(itemData) {
         <div class="features-grid">
     `;
     
-    ouiFeatures.forEach(feature => {
+    // Générer chaque fonctionnalité active
+    activeFeatures.forEach(feature => {
       html += `
         <div class="feature-item">
           <div class="feature-title">${feature.label}</div>
@@ -1456,55 +1465,64 @@ function openToolModal(itemData) {
     `;
     
     return html;
-  }
+  };
   
-  // Compatibilité avec d'autres outils - seulement les "Oui"
-  content += generateFeaturesGridOuiOnly([
-    { label: "Synchronisation des stocks", field: "listeListeOuinonid_synchronisation" },
-    { label: "Système de Caisse", field: "listeListeOuinonid_systemecaisse" },
-    { label: "Terminal de Paiement", field: "listeListeOuinonid_terminal" },
-    { label: "Logiciels de comptabilité", field: "listeListeOuinonid_logiciel" }
-  ], "Compatibilité avec d'autres outils");
+  // MODIFICATION: Définir les fonctionnalités par section avec leurs champs
   
-  // Fonctionnalités en cas de vente à plusieurs - seulement les "Oui"
-  content += generateFeaturesGridOuiOnly([
-    { label: "Accès du compte à plusieurs", field: "listeListeOuinonid_plusieurscomptes" },
-    { label: "Synchronisation entre boutiques", field: "listeListeOuinonid_synchroboutique" },
-    { label: "Commission personnalisée par producteur", field: "listeListeOuinonid_commissionpersonalisee" },
-    { label: "Répartition des paiements", field: "listeListeOuinonid_repartitionpaiements" },
-    { label: "Paramétrage adapté à chaque producteur", field: "listeListeOuinonid_datelimite" }
-  ], "Fonctionnalités en cas de vente à plusieurs");
+  // Compatibilité avec d'autres outils
+  const compatibiliteFeatures = [
+    { label: 'Synchronisation des stocks', field: 'listeListeOuinonid_synchronisation' },
+    { label: 'Système de Caisse', field: 'listeListeOuinonid_systemecaisse' },
+    { label: 'Terminal de Paiement', field: 'listeListeOuinonid_terminal' },
+    { label: 'Logiciels de comptabilité', field: 'listeListeOuinonid_logiciel' }
+  ];
   
-  // Fonctionnalités Logistiques - seulement les "Oui"
-  content += generateFeaturesGridOuiOnly([
-    { label: "Options de Clic-&-Collect", field: "listeListeOuinonid_cliccollect" },
-    { label: "Paramétrages de zones de livraisons", field: "listeListeOuinonid_zonelivraison" },
-    { label: "Partenariats solutions logistique", field: "listeListeOuinonid_solutionlogistique" },
-    { label: "Système de co-livraison", field: "listeListeOuinonid_colivraison" },
-    { label: "Partenariats emballage éco-responsable", field: "listeListeOuinonid_partenairesemballage" }
-  ], "Fonctionnalités Logistiques");
+  // Fonctionnalités en cas de vente à plusieurs
+  const ventePlusiersFeatures = [
+    { label: 'Accès du compte à plusieurs', field: 'listeListeOuinonid_plusieurscomptes' },
+    { label: 'Synchronisation entre boutiques', field: 'listeListeOuinonid_synchroboutique' },
+    { label: 'Commission personnalisée', field: 'listeListeOuinonid_commissionpersonalisee' },
+    { label: 'Répartition des paiements', field: 'listeListeOuinonid_repartitionpaiements' },
+    { label: 'Date limite adaptable', field: 'listeListeOuinonid_datelimite' }
+  ];
   
-  // Fonctionnalités de Gestion Commerciale - seulement les "Oui"
-  content += generateFeaturesGridOuiOnly([
-    { label: "Facturation", field: "listeListeOuinonid_facturation" },
-    { label: "Bons de Commande / Bons de livraison", field: "listeListeOuinonid_bonslivraison" },
-    { label: "Fonctionnalités de contractualisation", field: "listeListeOuinonid_contractualisation" },
-    { label: "Mise en place d'offres ou réductions", field: "listeListeOuinonid_reduc" },
-    { label: "Extraction BDD", field: "listeListeOuinonid_bdd" },
-    { label: "Système de notation par les clients", field: "listeListeOuinonid_notation" }
-  ], "Fonctionnalités de Gestion Commerciale");
+  // Fonctionnalités Logistiques
+  const logistiqueFeatures = [
+    { label: 'Options de Clic-&-Collect', field: 'listeListeOuinonid_cliccollect' },
+    { label: 'Zones de livraisons', field: 'listeListeOuinonid_zonelivraison' },
+    { label: 'Solutions logistiques', field: 'listeListeOuinonid_solutionlogistique' },
+    { label: 'Co-livraison', field: 'listeListeOuinonid_colivraison' },
+    { label: 'Emballage éco-responsable', field: 'listeListeOuinonid_partenairesemballage' }
+  ];
   
-  // Fonctionnalités de Communication - seulement les "Oui"
-  content += generateFeaturesGridOuiOnly([
-    { label: "Graphisme personnalisé", field: "listeListeOuinonid_pagepersonnalise" },
-    { label: "URL personnalisée", field: "listeListeOuinonid_url" },
-    { label: "Support SEO et référencement", field: "listeListeOuinonid_seo" },
-    { label: "Intégration réseaux sociaux", field: "listeListeOuinonid_socialnetworks" },
-    { label: "Emailing et notifications clients", field: "listeListeOuinonid_emailing" },
-    { label: "Messagerie Instantanée", field: "listeListeOuinonid_messagerie" },
-    { label: "Supports de communication", field: "listeListeOuinonid_com" },
-    { label: "Carte des producteurs", field: "listeListeOuinonid_carte" }
-  ], "Fonctionnalités de Communication");
+  // Fonctionnalités de Gestion Commerciale
+  const gestionFeatures = [
+    { label: 'Facturation', field: 'listeListeOuinonid_facturation' },
+    { label: 'Bons de Commande / Livraison', field: 'listeListeOuinonid_bonslivraison' },
+    { label: 'Contractualisation', field: 'listeListeOuinonid_contractualisation' },
+    { label: 'Réductions clients', field: 'listeListeOuinonid_reduc' },
+    { label: 'Extraction BDD', field: 'listeListeOuinonid_bdd' },
+    { label: 'Notation clients', field: 'listeListeOuinonid_notation' }
+  ];
+  
+  // Fonctionnalités de Communication
+  const communicationFeatures = [
+    { label: 'Graphisme personnalisé', field: 'listeListeOuinonid_pagepersonnalise' },
+    { label: 'URL personnalisée', field: 'listeListeOuinonid_url' },
+    { label: 'Support SEO', field: 'listeListeOuinonid_seo' },
+    { label: 'Intégration réseaux sociaux', field: 'listeListeOuinonid_socialnetworks' },
+    { label: 'Emailing', field: 'listeListeOuinonid_emailing' },
+    { label: 'Messagerie Instantanée', field: 'listeListeOuinonid_messagerie' },
+    { label: 'Supports de communication', field: 'listeListeOuinonid_com' },
+    { label: 'Carte des producteurs', field: 'listeListeOuinonid_carte' }
+  ];
+  
+  // MODIFICATION: Générer les sections de fonctionnalités
+  content += generateFeaturesGrid(itemData, compatibiliteFeatures, 'Compatibilité avec d\'autres outils');
+  content += generateFeaturesGrid(itemData, ventePlusiersFeatures, 'Fonctionnalités en cas de vente à plusieurs');
+  content += generateFeaturesGrid(itemData, logistiqueFeatures, 'Fonctionnalités Logistiques');
+  content += generateFeaturesGrid(itemData, gestionFeatures, 'Fonctionnalités de Gestion Commerciale');
+  content += generateFeaturesGrid(itemData, communicationFeatures, 'Fonctionnalités de Communication');
   
   // Boutons d'action
   content += `
@@ -1562,7 +1580,6 @@ function openToolModal(itemData) {
   document.addEventListener('keydown', escapeHandler);
   window.addEventListener('click', windowClickHandler);
 }
-
 // Écoute des changements sur les filtres
 document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-region, .filter-produit, .filter-support, .filter-modalite, .filter-systeme, .filter-paiement, .filter-compatibilite, .filter-vente-plusieurs, .filter-logistique, .filter-gestion, .filter-communication, .filter-sort').forEach(cb => {
   cb.addEventListener('change', updateDisplay);
