@@ -421,10 +421,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Définir le style directement si non correspondant
     const isMatched = item.matches;
     const unmatchedStyle = !isMatched ? 'filter: grayscale(100%);' : '';
-    const unmatchedBadge = !isMatched ? 
-      `<div style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: white; 
-      font-size: 10px; padding: 2px 8px; border-radius: 0 8px 0 8px; z-index: 10;">
-      Ne correspond pas aux filtres</div>` : '';
+    const unmatchedBadge = '';
     
     // Créer la carte avec structure verticale
     const card = document.createElement("div");
