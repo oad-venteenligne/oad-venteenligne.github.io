@@ -89,6 +89,47 @@ document.addEventListener("DOMContentLoaded", function() {
     return items;
   }
   
+  // Mappings des nouveaux filtres avec valeurs Oui/Non
+  const ouiNonFiltres = {
+    // Compatibilité avec d'autres outils
+    "synchronisation": "listeListeOuinonid_synchronisation",
+    "systemecaisse": "listeListeOuinonid_systemecaisse",
+    "terminal": "listeListeOuinonid_terminal",
+    "logiciel": "listeListeOuinonid_logiciel",
+    
+    // Fonctionnalités en cas de vente à plusieurs
+    "plusieurscomptes": "listeListeOuinonid_plusieurscomptes",
+    "synchroboutique": "listeListeOuinonid_synchroboutique",
+    "commissionpersonalisee": "listeListeOuinonid_commissionpersonalisee",
+    "repartitionpaiements": "listeListeOuinonid_repartitionpaiements",
+    "datelimite": "listeListeOuinonid_datelimite",
+    
+    // Fonctionnalités Logistiques
+    "cliccollect": "listeListeOuinonid_cliccollect",
+    "zonelivraison": "listeListeOuinonid_zonelivraison",
+    "solutionlogistique": "listeListeOuinonid_solutionlogistique",
+    "colivraison": "listeListeOuinonid_colivraison",
+    "partenairesemballage": "listeListeOuinonid_partenairesemballage",
+    
+    // Fonctionnalités de Gestion Commerciale
+    "facturation": "listeListeOuinonid_facturation",
+    "bonslivraison": "listeListeOuinonid_bonslivraison",
+    "contractualisation": "listeListeOuinonid_contractualisation",
+    "reduc": "listeListeOuinonid_reduc",
+    "bdd": "listeListeOuinonid_bdd",
+    "notation": "listeListeOuinonid_notation",
+    
+    // Fonctionnalités de Communication
+    "pagepersonnalise": "listeListeOuinonid_pagepersonnalise",
+    "url": "listeListeOuinonid_url",
+    "seo": "listeListeOuinonid_seo",
+    "socialnetworks": "listeListeOuinonid_socialnetworks",
+    "emailing": "listeListeOuinonid_emailing",
+    "messagerie": "listeListeOuinonid_messagerie",
+    "com": "listeListeOuinonid_com",
+    "carte": "listeListeOuinonid_carte"
+  };
+
   // Fonction d'exportation des résultats
   function exportResults() {
     // Récupérer les items filtrés
@@ -108,7 +149,12 @@ document.addEventListener("DOMContentLoaded", function() {
         'Année': getYearFromNumber(item.data.listeListeAnneeDeMiseEnLigne) || '',
         'URL': item.data.bf_urloutil || '',
         'Type de clients': getClientTypes(item.data.checkboxListeTypeclientid_typeclient) || '',
-        'Coût': getCostType(item.data.checkboxListeCoutplateformeid_coutplateforme) || ''
+        'Coût': getCostType(item.data.checkboxListeCoutplateformeid_coutplateforme) || '',
+        'Support': getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme) || '',
+        'Produits': getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises) || '',
+        'Modalité vente': getModaliteVente(item.data.checkboxListeModaliteventeid_modalitevente) || '',
+        'Système commande': getSystemeCommande(item.data.checkboxListeSystemecommandeid_systemecommande) || '',
+        'Paiement': getOptionPaiement(item.data.checkboxListeOptionpaiementid_optionpaiement) || ''
       };
     });
     
@@ -139,6 +185,21 @@ document.addEventListener("DOMContentLoaded", function() {
     const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
     const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
     const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
+    
+    // Nouveaux filtres
+    const selectedProduits = Array.from(document.querySelectorAll('.filter-produit:checked')).map(cb => cb.value);
+    const selectedSupports = Array.from(document.querySelectorAll('.filter-support:checked')).map(cb => cb.value);
+    const selectedModalites = Array.from(document.querySelectorAll('.filter-modalite:checked')).map(cb => cb.value);
+    const selectedSystemes = Array.from(document.querySelectorAll('.filter-systeme:checked')).map(cb => cb.value);
+    const selectedPaiements = Array.from(document.querySelectorAll('.filter-paiement:checked')).map(cb => cb.value);
+    
+    // Filtres avec valeurs Oui/Non
+    const selectedCompatibilites = Array.from(document.querySelectorAll('.filter-compatibilite:checked')).map(cb => cb.value);
+    const selectedVentePlusieurs = Array.from(document.querySelectorAll('.filter-vente-plusieurs:checked')).map(cb => cb.value);
+    const selectedLogistique = Array.from(document.querySelectorAll('.filter-logistique:checked')).map(cb => cb.value);
+    const selectedGestion = Array.from(document.querySelectorAll('.filter-gestion:checked')).map(cb => cb.value);
+    const selectedCommunication = Array.from(document.querySelectorAll('.filter-communication:checked')).map(cb => cb.value);
+    
     const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
     const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
     
@@ -147,10 +208,34 @@ document.addEventListener("DOMContentLoaded", function() {
       (selectedPlatforms.length > 0 ? 1 : 0) +
       (selectedClients.length > 0 ? 1 : 0) +
       (selectedCouts.length > 0 ? 1 : 0) +
-      (selectedRegions.length > 0 ? 1 : 0);
+      (selectedRegions.length > 0 ? 1 : 0) +
+      (selectedProduits.length > 0 ? 1 : 0) +
+      (selectedSupports.length > 0 ? 1 : 0) +
+      (selectedModalites.length > 0 ? 1 : 0) +
+      (selectedSystemes.length > 0 ? 1 : 0) +
+      (selectedPaiements.length > 0 ? 1 : 0) +
+      (selectedCompatibilites.length > 0 ? 1 : 0) +
+      (selectedVentePlusieurs.length > 0 ? 1 : 0) +
+      (selectedLogistique.length > 0 ? 1 : 0) +
+      (selectedGestion.length > 0 ? 1 : 0) +
+      (selectedCommunication.length > 0 ? 1 : 0);
     
     // Calculer le nombre total de modalités sélectionnées
-    const totalSelectedModalites = selectedPlatforms.length + selectedClients.length + selectedCouts.length + selectedRegions.length;
+    const totalSelectedModalites = 
+      selectedPlatforms.length + 
+      selectedClients.length + 
+      selectedCouts.length + 
+      selectedRegions.length +
+      selectedProduits.length +
+      selectedSupports.length +
+      selectedModalites.length +
+      selectedSystemes.length +
+      selectedPaiements.length +
+      selectedCompatibilites.length +
+      selectedVentePlusieurs.length +
+      selectedLogistique.length +
+      selectedGestion.length +
+      selectedCommunication.length;
     
     // Calculer le score de correspondance pour chaque item
     const scoredItems = allData.map(item => {
@@ -217,6 +302,165 @@ document.addEventListener("DOMContentLoaded", function() {
         
         matchScore += matchingRegionsCount;
         if (!matchesRegion) {
+          matches = false;
+        }
+      }
+      
+      // Nouveaux filtres
+      
+      // Calculer les correspondances pour les produits commercialisés
+      if (selectedProduits.length > 0) {
+        const itemProduits = (item.checkboxListeProduitcommercialiseid_produitscommercialises || '').split(',').map(s => s.trim());
+        const matchingProduitsCount = itemProduits.filter(produit => selectedProduits.includes(produit)).length;
+        matchScore += matchingProduitsCount;
+        
+        if (matchingProduitsCount === 0) {
+          matches = false;
+        }
+      }
+      
+      // Calculer les correspondances pour les types de support
+      if (selectedSupports.length > 0) {
+        const itemSupports = (item.checkboxListe021Typesupportplateformeid_typesupportplateforme || '').split(',').map(s => s.trim());
+        const matchingSupportsCount = itemSupports.filter(support => selectedSupports.includes(support)).length;
+        matchScore += matchingSupportsCount;
+        
+        if (matchingSupportsCount === 0) {
+          matches = false;
+        }
+      }
+      
+      // Calculer les correspondances pour les modalités de vente
+      if (selectedModalites.length > 0) {
+        const itemModalites = (item.checkboxListeModaliteventeid_modalitevente || '').split(',').map(s => s.trim());
+        const matchingModalitesCount = itemModalites.filter(modalite => selectedModalites.includes(modalite)).length;
+        matchScore += matchingModalitesCount;
+        
+        if (matchingModalitesCount === 0) {
+          matches = false;
+        }
+      }
+      
+      // Calculer les correspondances pour les systèmes de commande
+      if (selectedSystemes.length > 0) {
+        const itemSystemes = (item.checkboxListeSystemecommandeid_systemecommande || '').split(',').map(s => s.trim());
+        const matchingSystemesCount = itemSystemes.filter(systeme => selectedSystemes.includes(systeme)).length;
+        matchScore += matchingSystemesCount;
+        
+        if (matchingSystemesCount === 0) {
+          matches = false;
+        }
+      }
+      
+      // Calculer les correspondances pour les options de paiement
+      if (selectedPaiements.length > 0) {
+        const itemPaiements = (item.checkboxListeOptionpaiementid_optionpaiement || '').split(',').map(s => s.trim());
+        const matchingPaiementsCount = itemPaiements.filter(paiement => selectedPaiements.includes(paiement)).length;
+        matchScore += matchingPaiementsCount;
+        
+        if (matchingPaiementsCount === 0) {
+          matches = false;
+        }
+      }
+      
+      // Pour les filtres Oui/Non, vérifier si l'item correspond à chaque critère sélectionné
+      
+      // Compatibilité avec d'autres outils
+      if (selectedCompatibilites.length > 0) {
+        let matchesCompatibilite = true;
+        let matchingCompatibilitesCount = 0;
+        
+        for (const compatibilite of selectedCompatibilites) {
+          const fieldName = ouiNonFiltres[compatibilite];
+          if (item[fieldName] === "2") { // 2 = Oui
+            matchingCompatibilitesCount++;
+          } else {
+            matchesCompatibilite = false;
+          }
+        }
+        
+        matchScore += matchingCompatibilitesCount;
+        if (!matchesCompatibilite) {
+          matches = false;
+        }
+      }
+      
+      // Fonctionnalités en cas de vente à plusieurs
+      if (selectedVentePlusieurs.length > 0) {
+        let matchesVentePlusieurs = true;
+        let matchingVentePlusieurssCount = 0;
+        
+        for (const ventePlusieurs of selectedVentePlusieurs) {
+          const fieldName = ouiNonFiltres[ventePlusieurs];
+          if (item[fieldName] === "2") { // 2 = Oui
+            matchingVentePlusieurssCount++;
+          } else {
+            matchesVentePlusieurs = false;
+          }
+        }
+        
+        matchScore += matchingVentePlusieurssCount;
+        if (!matchesVentePlusieurs) {
+          matches = false;
+        }
+      }
+      
+      // Fonctionnalités Logistiques
+      if (selectedLogistique.length > 0) {
+        let matchesLogistique = true;
+        let matchingLogistiqueCount = 0;
+        
+        for (const logistique of selectedLogistique) {
+          const fieldName = ouiNonFiltres[logistique];
+          if (item[fieldName] === "2") { // 2 = Oui
+            matchingLogistiqueCount++;
+          } else {
+            matchesLogistique = false;
+          }
+        }
+        
+        matchScore += matchingLogistiqueCount;
+        if (!matchesLogistique) {
+          matches = false;
+        }
+      }
+      
+      // Fonctionnalités de Gestion Commerciale
+      if (selectedGestion.length > 0) {
+        let matchesGestion = true;
+        let matchingGestionCount = 0;
+        
+        for (const gestion of selectedGestion) {
+          const fieldName = ouiNonFiltres[gestion];
+          if (item[fieldName] === "2") { // 2 = Oui
+            matchingGestionCount++;
+          } else {
+            matchesGestion = false;
+          }
+        }
+        
+        matchScore += matchingGestionCount;
+        if (!matchesGestion) {
+          matches = false;
+        }
+      }
+      
+      // Fonctionnalités de Communication
+      if (selectedCommunication.length > 0) {
+        let matchesCommunication = true;
+        let matchingCommunicationCount = 0;
+        
+        for (const communication of selectedCommunication) {
+          const fieldName = ouiNonFiltres[communication];
+          if (item[fieldName] === "2") { // 2 = Oui
+            matchingCommunicationCount++;
+          } else {
+            matchesCommunication = false;
+          }
+        }
+        
+        matchScore += matchingCommunicationCount;
+        if (!matchesCommunication) {
           matches = false;
         }
       }
@@ -378,6 +622,83 @@ document.addEventListener("DOMContentLoaded", function() {
     return types[costType] || "Non renseigné";
   }
   
+  // Nouvelles fonctions pour les filtres ajoutés
+  function getProductTypes(productTypes) {
+    if (!productTypes) return "Non renseigné";
+    
+    const types = {
+      "1": "Fruits et légumes",
+      "2": "Produits d'épicerie",
+      "3": "Produits carnés",
+      "4": "Produits de la pêche",
+      "5": "Produits laitiers",
+      "6": "Produits non alimentaires"
+    };
+    
+    return productTypes.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
+  }
+  
+  function getSupportTypes(supportTypes) {
+    if (!supportTypes) return "Non renseigné";
+    
+    const types = {
+      "1": "Site internet",
+      "2": "Application mobile"
+    };
+    
+    return supportTypes.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
+  }
+  
+  function getModaliteVente(modaliteTypes) {
+    if (!modaliteTypes) return "Non renseigné";
+    
+    const types = {
+      "1": "Vente permanente",
+      "2": "Vente par sessions"
+    };
+    
+    return modaliteTypes.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
+  }
+  
+  function getSystemeCommande(systemeTypes) {
+    if (!systemeTypes) return "Non renseigné";
+    
+    const types = {
+      "1": "Composition libre du panier",
+      "2": "Paniers pré-composés avec abonnement",
+      "3": "Paniers pré-composés sans abonnement"
+    };
+    
+    return systemeTypes.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
+  }
+  
+  function getOptionPaiement(paiementTypes) {
+    if (!paiementTypes) return "Non renseigné";
+    
+    const types = {
+      "1": "Paiement en ligne, à la commande",
+      "2": "Paiement à la livraison"
+    };
+    
+    return paiementTypes.split(',')
+      .map(id => types[id.trim()] || `Type ${id}`)
+      .join(', ');
+  }
+  
+  // Fonction pour obtenir les valeurs Oui/Non des fonctionnalités
+  function getOuiNonValue(item, field) {
+    if (!item[field]) return "Non renseigné";
+    return item[field] === "2" ? "Oui" : "Non";
+  }
+  
   function getFirstSentence(text) {
     if (!text) return '';
     const match = text.match(/^(.*?)(?:\.\s|$)/);
@@ -398,7 +719,68 @@ document.addEventListener("DOMContentLoaded", function() {
            `<span class="highlight-match">${text.substring(index, index + searchTerm.length)}</span>` + 
            text.substring(index + searchTerm.length);
   }
+  
+  // Fonction pour obtenir les types de produits avec icônes
+  function getProductTypesWithIcons(productTypes) {
+    if (!productTypes) return "Aucun produit renseigné";
+    
+    const types = {
+      "1": {
+        icon: "🥕", // Fruits et légumes
+        name: "Fruits et légumes"
+      },
+      "2": {
+        icon: "🥫", // Produits d'épicerie
+        name: "Produits d'épicerie"
+      },
+      "3": {
+        icon: "🥩", // Produits carnés
+        name: "Produits carnés"
+      },
+      "4": {
+        icon: "🐟", // Produits de la pêche
+        name: "Produits de la pêche"
+      },
+      "5": {
+        icon: "🧀", // Produits laitiers
+        name: "Produits laitiers"
+      },
+      "6": {
+        icon: "🛍️", // Produits non alimentaires
+        name: "Produits non alimentaires"
+      }
+    };
+    
+    // Récupérer les IDs des produits
+    const productIds = productTypes.split(',').map(id => id.trim());
+    
+    // Générer le HTML avec icônes et tooltip
+    let html = '<div class="product-icons">';
+    
+    // Pour chaque produit, ajouter l'icône avec tooltip
+    productIds.forEach(id => {
+      if (types[id]) {
+        html += `<span class="product-icon" title="${types[id].name}">${types[id].icon}</span>`;
+      }
+    });
+    
+    html += '</div>';
+    
+    return html;
+  }
+  
+  // Formater le texte avec des paragraphes
+  function formatTextWithParagraphs(text) {
+    if (!text) return '';
+    return text.replace(/\r\n|\n/g, '<br>');
+  }
 
+  // Formater les nombres avec des séparateurs de milliers
+  function formatNumber(num) {
+    if (!num) return '0';
+    return parseInt(num).toLocaleString('fr-FR');
+  }
+  
   // Fonction pour afficher une carte
   function renderCard(item) {
     const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
@@ -447,6 +829,8 @@ document.addEventListener("DOMContentLoaded", function() {
         <div class="highlight-box" style="${!isMatched ? 'background: #eee; border-left-color: #aaa;' : ''}">
           <p><strong>Année de création :</strong> ${anneeCreation}</p>
           <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
+          <p><strong>Support :</strong> ${getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</p>
+          <p><strong>Produits :</strong> ${getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises)}</p>
           ${item.data.bf_urloutil 
             ? `<p><strong>Site web :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil}</a></p>` 
             : ''
@@ -479,70 +863,7 @@ document.addEventListener("DOMContentLoaded", function() {
       container.appendChild(card);
     }
   }
-
-  // Chargement des données depuis l'API avec mise en cache
-  function loadData() {
-    // Vérifier si des données en cache existent
-    const cachedData = localStorage.getItem('toolsDataCache');
-    const cacheTimestamp = parseInt(localStorage.getItem('toolsDataTimestamp') || '0');
-    const now = Date.now();
-    const oneDayInMs = 24 * 60 * 60 * 1000;
-    
-    // Afficher l'indicateur de chargement
-    const container = document.getElementById("fiches-container");
-    if (!container) {
-      console.error("L'élément 'fiches-container' n'existe pas.");
-      return;
-    }
-    
-    container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des données...</p></div>';
-    
-    // Si le cache est valide (moins d'un jour)
-    if (cachedData && (now - cacheTimestamp) < oneDayInMs) {
-      try {
-        allData = JSON.parse(cachedData);
-        updateDisplay();
-        return;
-      } catch (e) {
-        console.error("Erreur lors de la lecture du cache:", e);
-        // Si erreur, continuer et charger depuis l'API
-      }
-    }
-    
-    // Charger depuis l'API
-    fetch("https://www.oad-venteenligne.org/?api/forms/7/entries")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Erreur réseau: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        allData = Object.values(data);
-        
-        // Mettre en cache
-        try {
-          localStorage.setItem('toolsDataCache', JSON.stringify(allData));
-          localStorage.setItem('toolsDataTimestamp', now.toString());
-        } catch (e) {
-          console.warn("Impossible de mettre en cache les données:", e);
-        }
-        
-        updateDisplay();
-      })
-      .catch(error => {
-        console.error("Erreur lors du chargement des données:", error);
-        
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px;">
-            <h3>Erreur de connexion</h3>
-            <p>Impossible de charger les données. Veuillez vérifier votre connexion et réessayer.</p>
-            <button onclick="loadData()" class="cta-button" style="margin: 20px auto;">Réessayer</button>
-          </div>
-        `;
-      });
-  }
-
+  
   // ===== FONCTIONS DU MODAL =====
 
   // Fonction pour ouvrir le modal avec les détails d'un outil
@@ -625,7 +946,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     `;
     
-    // Echelle géo, produits, types de clients, coût de l'outil, support numérique
+    // Échelle géo, produits, types de clients, coût de l'outil, support numérique
     content += `
       <div class="modal-section">
         <h2>Positionnement de l'Outil</h2>
@@ -643,6 +964,167 @@ document.addEventListener("DOMContentLoaded", function() {
             <div class="feature-description">
               ${getProductTypesWithIcons(itemData.checkboxListeProduitcommercialiseid_produitscommercialises)}
             </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Type de support</div>
+            <div class="feature-description">${getSupportTypes(itemData.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Modalité de vente</div>
+            <div class="feature-description">${getModaliteVente(itemData.checkboxListeModaliteventeid_modalitevente)}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Système de commande</div>
+            <div class="feature-description">${getSystemeCommande(itemData.checkboxListeSystemecommandeid_systemecommande)}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Option de paiement</div>
+            <div class="feature-description">${getOptionPaiement(itemData.checkboxListeOptionpaiementid_optionpaiement)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Compatibilité et autres fonctionnalités
+    content += `
+      <div class="modal-section">
+        <h2>Compatibilité avec d'autres outils</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Synchronisation des stocks</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchronisation')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Système de Caisse</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_systemecaisse')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Terminal de Paiement</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_terminal')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Logiciels de comptabilité</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_logiciel')}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-section">
+        <h2>Fonctionnalités en cas de vente à plusieurs</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Accès du compte à plusieurs</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_plusieurscomptes')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Synchronisation entre boutiques</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchroboutique')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Commission personnalisée</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_commissionpersonalisee')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Répartition des paiements</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_repartitionpaiements')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Date limite adaptable</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_datelimite')}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-section">
+        <h2>Fonctionnalités Logistiques</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Options de Clic-&-Collect</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_cliccollect')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Zones de livraisons</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_zonelivraison')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Solutions logistiques</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_solutionlogistique')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Co-livraison</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_colivraison')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Emballage éco-responsable</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_partenairesemballage')}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-section">
+        <h2>Fonctionnalités de Gestion Commerciale</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Facturation</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_facturation')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Bons de Commande / Livraison</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bonslivraison')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Contractualisation</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_contractualisation')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Réductions clients</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_reduc')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Extraction BDD</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bdd')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Notation clients</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_notation')}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-section">
+        <h2>Fonctionnalités de Communication</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Graphisme personnalisé</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_pagepersonnalise')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">URL personnalisée</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_url')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Support SEO</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_seo')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Intégration réseaux sociaux</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_socialnetworks')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Emailing</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_emailing')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Messagerie Instantanée</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_messagerie')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Supports de communication</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_com')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Carte des producteurs</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_carte')}</div>
           </div>
         </div>
       </div>
@@ -705,69 +1187,8 @@ document.addEventListener("DOMContentLoaded", function() {
     window.addEventListener('click', windowClickHandler);
   }
 
-  // Fonction pour obtenir les types de produits avec icônes
-  function getProductTypesWithIcons(productTypes) {
-    if (!productTypes) return "Aucun produit renseigné";
-    
-    const types = {
-      "1": {
-        icon: "🥕", // Fruits et légumes
-        name: "Fruits et légumes"
-      },
-      "2": {
-        icon: "🥫", // Produits d'épicerie
-        name: "Produits d'épicerie"
-      },
-      "3": {
-        icon: "🥩", // Produits carnés
-        name: "Produits carnés"
-      },
-      "4": {
-        icon: "🐟", // Produits de la pêche
-        name: "Produits de la pêche"
-      },
-      "5": {
-        icon: "🧀", // Produits laitiers
-        name: "Produits laitiers"
-      },
-      "6": {
-        icon: "🛍️", // Produits non alimentaires
-        name: "Produits non alimentaires"
-      }
-    };
-    
-    // Récupérer les IDs des produits
-    const productIds = productTypes.split(',').map(id => id.trim());
-    
-    // Générer le HTML avec icônes et tooltip
-    let html = '<div class="product-icons">';
-    
-    // Pour chaque produit, ajouter l'icône avec tooltip
-    productIds.forEach(id => {
-      if (types[id]) {
-        html += `<span class="product-icon" title="${types[id].name}">${types[id].icon}</span>`;
-      }
-    });
-    
-    html += '</div>';
-    
-    return html;
-  }
-
-  // Formater le texte avec des paragraphes
-  function formatTextWithParagraphs(text) {
-    if (!text) return '';
-    return text.replace(/\r\n|\n/g, '<br>');
-  }
-
-  // Formater les nombres avec des séparateurs de milliers
-  function formatNumber(num) {
-    if (!num) return '0';
-    return parseInt(num).toLocaleString('fr-FR');
-  }
-
   // Écoute des changements sur les filtres
-  document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-region, .filter-sort').forEach(cb => {
+  document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-region, .filter-produit, .filter-support, .filter-modalite, .filter-systeme, .filter-paiement, .filter-compatibilite, .filter-vente-plusieurs, .filter-logistique, .filter-gestion, .filter-communication, .filter-sort').forEach(cb => {
     cb.addEventListener('change', updateDisplay);
   });
   
@@ -787,3 +1208,63 @@ document.addEventListener("DOMContentLoaded", function() {
   // Charger les données au démarrage
   loadData();
 });
+    // Vérifier si des données en cache existent
+    const cachedData = localStorage.getItem('toolsDataCache');
+    const cacheTimestamp = parseInt(localStorage.getItem('toolsDataTimestamp') || '0');
+    const now = Date.now();
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+    
+    // Afficher l'indicateur de chargement
+    const container = document.getElementById("fiches-container");
+    if (!container) {
+      console.error("L'élément 'fiches-container' n'existe pas.");
+      return;
+    }
+    
+    container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des données...</p></div>';
+    
+    // Si le cache est valide (moins d'un jour)
+    if (cachedData && (now - cacheTimestamp) < oneDayInMs) {
+      try {
+        allData = JSON.parse(cachedData);
+        updateDisplay();
+        return;
+      } catch (e) {
+        console.error("Erreur lors de la lecture du cache:", e);
+        // Si erreur, continuer et charger depuis l'API
+      }
+    }
+    
+    // Charger depuis l'API
+    fetch("https://www.oad-venteenligne.org/?api/forms/7/entries")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erreur réseau: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        allData = Object.values(data);
+        
+        // Mettre en cache
+        try {
+          localStorage.setItem('toolsDataCache', JSON.stringify(allData));
+          localStorage.setItem('toolsDataTimestamp', now.toString());
+        } catch (e) {
+          console.warn("Impossible de mettre en cache les données:", e);
+        }
+        
+        updateDisplay();
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement des données:", error);
+        
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px;">
+            <h3>Erreur de connexion</h3>
+            <p>Impossible de charger les données. Veuillez vérifier votre connexion et réessayer.</p>
+            <button onclick="loadData()" class="cta-button" style="margin: 20px auto;">Réessayer</button>
+          </div>
+        `;
+      });
+  }
