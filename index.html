@@ -23,32 +23,32 @@
             <input type="text" id="search-input" class="form-control" placeholder="Rechercher un outil..." />
           </div>
           
-<div class="filter-header" data-target="filter-regions">
-  <span>Filtrer par région</span>
-  <span>⬇️</span>
-</div>
-<div id="filter-regions" class="filter-content">
-  <div class="region-checkboxes">
-    <label><input type="checkbox" value="1" class="filter-region"> Auvergne-Rhône-Alpes</label>
-    <label><input type="checkbox" value="2" class="filter-region"> Bourgogne-Franche-Comté</label>
-    <label><input type="checkbox" value="3" class="filter-region"> Bretagne</label>
-    <label><input type="checkbox" value="4" class="filter-region"> Centre-Val de Loire</label>
-    <label><input type="checkbox" value="5" class="filter-region"> Corse</label>
-    <label><input type="checkbox" value="6" class="filter-region"> Grand Est</label>
-    <label><input type="checkbox" value="7" class="filter-region"> Hauts-de-France</label>
-    <label><input type="checkbox" value="8" class="filter-region"> Île-de-France</label>
-    <label><input type="checkbox" value="9" class="filter-region"> Normandie</label>
-    <label><input type="checkbox" value="10" class="filter-region"> Nouvelle-Aquitaine</label>
-    <label><input type="checkbox" value="11" class="filter-region"> Occitanie</label>
-    <label><input type="checkbox" value="12" class="filter-region"> Pays de la Loire</label>
-    <label><input type="checkbox" value="13" class="filter-region"> Provence-Alpes-Côte d'Azur</label>
-    <label><input type="checkbox" value="14" class="filter-region"> Guadeloupe</label>
-    <label><input type="checkbox" value="15" class="filter-region"> Martinique</label>
-    <label><input type="checkbox" value="16" class="filter-region"> Guyane</label>
-    <label><input type="checkbox" value="17" class="filter-region"> La Réunion</label>
-    <label><input type="checkbox" value="18" class="filter-region"> Mayotte</label>
-  </div>
-</div>
+          <div class="filter-header" data-target="filter-regions">
+            <span>Filtrer par région</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-regions" class="filter-content">
+            <div class="region-checkboxes">
+              <label><input type="checkbox" value="1" class="filter-region"> Auvergne-Rhône-Alpes</label>
+              <label><input type="checkbox" value="2" class="filter-region"> Bourgogne-Franche-Comté</label>
+              <label><input type="checkbox" value="3" class="filter-region"> Bretagne</label>
+              <label><input type="checkbox" value="4" class="filter-region"> Centre-Val de Loire</label>
+              <label><input type="checkbox" value="5" class="filter-region"> Corse</label>
+              <label><input type="checkbox" value="6" class="filter-region"> Grand Est</label>
+              <label><input type="checkbox" value="7" class="filter-region"> Hauts-de-France</label>
+              <label><input type="checkbox" value="8" class="filter-region"> Île-de-France</label>
+              <label><input type="checkbox" value="9" class="filter-region"> Normandie</label>
+              <label><input type="checkbox" value="10" class="filter-region"> Nouvelle-Aquitaine</label>
+              <label><input type="checkbox" value="11" class="filter-region"> Occitanie</label>
+              <label><input type="checkbox" value="12" class="filter-region"> Pays de la Loire</label>
+              <label><input type="checkbox" value="13" class="filter-region"> Provence-Alpes-Côte d'Azur</label>
+              <label><input type="checkbox" value="14" class="filter-region"> Guadeloupe</label>
+              <label><input type="checkbox" value="15" class="filter-region"> Martinique</label>
+              <label><input type="checkbox" value="16" class="filter-region"> Guyane</label>
+              <label><input type="checkbox" value="17" class="filter-region"> La Réunion</label>
+              <label><input type="checkbox" value="18" class="filter-region"> Mayotte</label>
+            </div>
+          </div>
           
           <!-- Option de tri -->
           <div class="filter-header" data-target="filter-sort">
@@ -100,11 +100,137 @@
             <label><input type="checkbox" value="4" class="filter-cout"> Commission prélevée au consommateur</label>
             <label><input type="checkbox" value="5" class="filter-cout"> Abonnement / droit d'entrée pour le consommateur</label>
           </div>
+
+          <!-- NOUVEAUX FILTRES -->
+
+          <!-- Filtre "Produits commercialisés" -->
+          <div class="filter-header" data-target="filter-produits">
+            <span>Produits commercialisés</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-produits" class="filter-content">
+            <label><input type="checkbox" value="1" class="filter-produit"> Fruits et légumes</label>
+            <label><input type="checkbox" value="2" class="filter-produit"> Produits d'épicerie</label>
+            <label><input type="checkbox" value="3" class="filter-produit"> Produits carnés</label>
+            <label><input type="checkbox" value="4" class="filter-produit"> Produits de la pêche</label>
+            <label><input type="checkbox" value="5" class="filter-produit"> Produits laitiers</label>
+            <label><input type="checkbox" value="6" class="filter-produit"> Produits non alimentaires</label>
+          </div>
+
+          <!-- Filtre "Type de support" -->
+          <div class="filter-header" data-target="filter-support">
+            <span>Type de support</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-support" class="filter-content">
+            <label><input type="checkbox" value="1" class="filter-support"> Site internet</label>
+            <label><input type="checkbox" value="2" class="filter-support"> Application mobile</label>
+          </div>
+
+          <!-- Filtre "Modalité de vente" -->
+          <div class="filter-header" data-target="filter-modalite">
+            <span>Modalité de vente</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-modalite" class="filter-content">
+            <label><input type="checkbox" value="1" class="filter-modalite"> Vente permanente</label>
+            <label><input type="checkbox" value="2" class="filter-modalite"> Vente par sessions</label>
+          </div>
+
+          <!-- Filtre "Système de commande" -->
+          <div class="filter-header" data-target="filter-systeme">
+            <span>Système de commande</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-systeme" class="filter-content">
+            <label><input type="checkbox" value="1" class="filter-systeme"> Composition libre du panier</label>
+            <label><input type="checkbox" value="2" class="filter-systeme"> Paniers pré-composés avec abonnement</label>
+            <label><input type="checkbox" value="3" class="filter-systeme"> Paniers pré-composés sans abonnement</label>
+          </div>
+
+          <!-- Filtre "Option de paiement" -->
+          <div class="filter-header" data-target="filter-paiement">
+            <span>Option de paiement</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-paiement" class="filter-content">
+            <label><input type="checkbox" value="1" class="filter-paiement"> Paiement en ligne, à la commande</label>
+            <label><input type="checkbox" value="2" class="filter-paiement"> Paiement à la livraison</label>
+          </div>
+
+          <!-- Filtre "Compatibilité avec d'autres outils" -->
+          <div class="filter-header" data-target="filter-compatibilite">
+            <span>Compatibilité avec d'autres outils</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-compatibilite" class="filter-content">
+            <label><input type="checkbox" value="synchronisation" class="filter-compatibilite"> Synchronisation des stocks</label>
+            <label><input type="checkbox" value="systemecaisse" class="filter-compatibilite"> Système de Caisse</label>
+            <label><input type="checkbox" value="terminal" class="filter-compatibilite"> Terminal de Paiement</label>
+            <label><input type="checkbox" value="logiciel" class="filter-compatibilite"> Logiciels de comptabilité</label>
+          </div>
+
+          <!-- Filtre "Fonctionnalités en cas de vente à plusieurs" -->
+          <div class="filter-header" data-target="filter-vente-plusieurs">
+            <span>Fonctionnalités en cas de vente à plusieurs</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-vente-plusieurs" class="filter-content">
+            <label><input type="checkbox" value="plusieurscomptes" class="filter-vente-plusieurs"> Accès du compte à plusieurs</label>
+            <label><input type="checkbox" value="synchroboutique" class="filter-vente-plusieurs"> Synchronisation avec d'autres boutiques</label>
+            <label><input type="checkbox" value="commissionpersonalisee" class="filter-vente-plusieurs"> Commission personnalisée par producteur</label>
+            <label><input type="checkbox" value="repartitionpaiements" class="filter-vente-plusieurs"> Répartition des paiements</label>
+            <label><input type="checkbox" value="datelimite" class="filter-vente-plusieurs"> Paramétrage adapté à chaque producteur</label>
+          </div>
+
+          <!-- Filtre "Fonctionnalités Logistiques" -->
+          <div class="filter-header" data-target="filter-logistique">
+            <span>Fonctionnalités Logistiques</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-logistique" class="filter-content">
+            <label><input type="checkbox" value="cliccollect" class="filter-logistique"> Options de Clic-&-Collect</label>
+            <label><input type="checkbox" value="zonelivraison" class="filter-logistique"> Paramétrages de zones de livraisons</label>
+            <label><input type="checkbox" value="solutionlogistique" class="filter-logistique"> Partenariats solutions logistique</label>
+            <label><input type="checkbox" value="colivraison" class="filter-logistique"> Système de co-livraison</label>
+            <label><input type="checkbox" value="partenairesemballage" class="filter-logistique"> Partenariats emballage éco-responsable</label>
+          </div>
+
+          <!-- Filtre "Fonctionnalités de Gestion Commerciale" -->
+          <div class="filter-header" data-target="filter-gestion">
+            <span>Fonctionnalités de Gestion Commerciale</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-gestion" class="filter-content">
+            <label><input type="checkbox" value="facturation" class="filter-gestion"> Facturation</label>
+            <label><input type="checkbox" value="bonslivraison" class="filter-gestion"> Bons de Commande / Bons de livraison</label>
+            <label><input type="checkbox" value="contractualisation" class="filter-gestion"> Fonctionnalités de contractualisation</label>
+            <label><input type="checkbox" value="reduc" class="filter-gestion"> Mise en place d'offres ou réductions</label>
+            <label><input type="checkbox" value="bdd" class="filter-gestion"> Extraction BDD</label>
+            <label><input type="checkbox" value="notation" class="filter-gestion"> Système de notation par les clients</label>
+          </div>
+
+          <!-- Filtre "Fonctionnalités de Communication" -->
+          <div class="filter-header" data-target="filter-communication">
+            <span>Fonctionnalités de Communication</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-communication" class="filter-content">
+            <label><input type="checkbox" value="pagepersonnalise" class="filter-communication"> Graphisme personnalisé</label>
+            <label><input type="checkbox" value="url" class="filter-communication"> URL personnalisée</label>
+            <label><input type="checkbox" value="seo" class="filter-communication"> Support SEO et référencement</label>
+            <label><input type="checkbox" value="socialnetworks" class="filter-communication"> Intégration réseaux sociaux</label>
+            <label><input type="checkbox" value="emailing" class="filter-communication"> Emailing et notifications clients</label>
+            <label><input type="checkbox" value="messagerie" class="filter-communication"> Messagerie Instantanée</label>
+            <label><input type="checkbox" value="com" class="filter-communication"> Modèles PLV ou supports de com</label>
+            <label><input type="checkbox" value="carte" class="filter-communication"> Carte en ligne des producteurs</label>
+          </div>
         </div>
       </div>
       
       <!-- Contenu principal : les fiches -->
       <div class="main-content">
+        <button id="export-button" class="export-button">Exporter les résultats</button>
         <div id="results-stats"></div>
         <div id="fiches-container"></div>
       </div>
