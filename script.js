@@ -1092,7 +1092,6 @@ function generateModalitesList(item) {
   return html;
 }
 
-
 // Fonction pour afficher une carte
 function renderCard(item) {
   const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
@@ -1141,19 +1140,27 @@ function renderCard(item) {
   const percentage = item.matchPercentage;
   const styles = getCardStyle(percentage);
 
-  // CSS pour les modalités
-  const modalitesCss = `
-    .modalites-list {
+  // CSS pour les modalités et la section détails
+  const detailsCss = `
+    .details-list {
       margin-top: 10px;
-      padding: 10px;
+      padding: 12px;
       background-color: #f9f9f9;
       border-radius: 6px;
       font-size: 13px;
-      border-left: 3px solid #ccc;
+      border-left: 3px solid #ddd;
     }
     
-    .modalite-category {
-      margin-bottom: 5px;
+    .details-category {
+      margin-bottom: 10px;
+    }
+    
+    .details-category h4 {
+      font-size: 14px;
+      margin: 0 0 5px 0;
+      color: #555;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 3px;
     }
     
     .modalite-match {
@@ -1165,38 +1172,51 @@ function renderCard(item) {
       color: #9e9e9e;
     }
     
-    .modalites-toggle {
+    .details-toggle {
       cursor: pointer;
       display: block;
       margin: 15px 0 5px 0;
       font-size: 15px;
       color: #555;
       user-select: none;
+      background: #f0f0f0;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
     }
     
-    .modalites-toggle:hover {
-      color: #4caf50;
+    .details-toggle:hover {
+      background: #e0e0e0;
     }
     
-    .modalites-toggle::after {
-      content: " ▾";
+    .details-toggle::after {
+      content: " ▴";
       font-size: 12px;
+      float: right;
     }
     
-    .modalites-container[data-expanded="false"] .modalites-list {
+    .details-container[data-expanded="false"] .details-list {
       display: none;
     }
     
-    .modalites-container[data-expanded="false"] .modalites-toggle::after {
-      content: " ▸";
+    .details-container[data-expanded="false"] .details-toggle::after {
+      content: " ▾";
+    }
+    
+    .info-row {
+      margin-bottom: 5px;
+    }
+    
+    .info-row strong {
+      font-weight: 500;
     }
   `;
 
   // Ajouter le style à la page si ce n'est pas déjà fait
-  if (!document.getElementById('modalites-css')) {
+  if (!document.getElementById('details-css')) {
     const styleEl = document.createElement('style');
-    styleEl.id = 'modalites-css';
-    styleEl.textContent = modalitesCss;
+    styleEl.id = 'details-css';
+    styleEl.textContent = detailsCss;
     document.head.appendChild(styleEl);
   }
 
@@ -1223,23 +1243,28 @@ function renderCard(item) {
     <div class="card-right">
       <h2 class="tool-title" style="${styles.textColor}">${highlightedTitle}</h2>
       <p class="tool-description" style="${styles.textColor}">${highlightedDescription}</p>
-      <div class="highlight-box">
-        <p><strong>Année de création :</strong> ${anneeCreation}</p>
-        <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
-        <p><strong>Support :</strong> ${getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</p>
-        <p><strong>Produits :</strong> ${getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises)}</p>
+      
+      <div class="info-row">
+        <strong>Année :</strong> ${anneeCreation}
         ${item.data.bf_urloutil 
-          ? `<p><strong>Site web :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil}</a></p>` 
+          ? `<span style="margin-left: 15px;"><strong>Site :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil.replace(/(https?:\/\/)?(www\.)?/i, '')}</a></span>` 
           : ''
         }
       </div>
       
-      ${modalitesList ? `
-      <div class="modalites-container" data-expanded="false">
-        <div class="modalites-toggle">Critères sélectionnés</div>
-        ${modalitesList}
+      <div class="details-container" data-expanded="true">
+        <div class="details-toggle">Détails et critères sélectionnés</div>
+        <div class="details-list">
+          <div class="details-category">
+            <h4>Informations générales</h4>
+            <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
+            <p><strong>Support :</strong> ${getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</p>
+            <p><strong>Produits :</strong> ${getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises)}</p>
+          </div>
+          
+          ${modalitesList ? modalitesList : ''}
+        </div>
       </div>
-      ` : ''}
       
       <button class="cta-button view-details" aria-label="Voir les détails de ${title}">
         Voir les détails
@@ -1257,20 +1282,24 @@ function renderCard(item) {
     });
   }
   
-  // Ajouter un écouteur pour le toggle des modalités
-  const modalitesToggle = card.querySelector('.modalites-toggle');
-  if (modalitesToggle) {
-    modalitesToggle.addEventListener('click', function(e) {
+  // Ajouter un écouteur pour le toggle des détails
+  const detailsToggle = card.querySelector('.details-toggle');
+  if (detailsToggle) {
+    detailsToggle.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      const container = this.closest('.modalites-container');
+      const container = this.closest('.details-container');
       const isExpanded = container.getAttribute('data-expanded') === 'true';
       container.setAttribute('data-expanded', !isExpanded);
     });
   }
   
   // Ajouter un écouteur sur toute la carte pour ouvrir le modal
-  card.addEventListener('click', function() {
+  card.addEventListener('click', function(e) {
+    // Ne pas ouvrir le modal si on clique sur les détails
+    if (e.target.closest('.details-toggle') || e.target.closest('.details-list') || e.target.closest('.view-details') || e.target.closest('a')) {
+      return;
+    }
     openToolModal(item.data);
   });
   
