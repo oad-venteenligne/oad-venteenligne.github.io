@@ -590,25 +590,6 @@ document.addEventListener("DOMContentLoaded", function() {
       "1": "Consommateurs particuliers",
       "2": "Restauration collective",
       "3": "Restauration commerciale",
-      "4": "GMS",
-      "5": "Commerces de proximité",
-      "6": "Grossistes",
-      "7": "Transformateurs",
-      "8": "Producteurs"
-    };
-    
-    return clientTypes.split(',')
-      .map(id => types[id.trim()] || `Type ${id}`)
-      .join(', ');
-  }
-  
-  function getCostType(costType) {
-    if (!costType) return "Non renseigné";
-    
-    const types = {
-      "1": "Totalement gratuit",
-      "2": "Commission prélevée au producteur",
-      "3": "Abonnement / droit d'entrée pour le producteur",
       "4": "Commission prélevée au consommateur",
       "5": "Abonnement / droit d'entrée pour le consommateur"
     };
@@ -843,75 +824,26 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     `;
     
-    // Ajouter l'écouteur d'événement pour ouvrir le modal
-    const viewDetailsBtn = card.querySelector('.view-details');
-    if (viewDetailsBtn) {
-      viewDetailsBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openToolModal(item.data);
-      });
-    }
-    
-    // Ajouter un écouteur sur toute la carte pour ouvrir le modal
-    card.addEventListener('click', function() {
-      openToolModal(item.data);
-    });
-    
-    const container = document.getElementById("fiches-container");
-    if (container) {
-      container.appendChild(card);
-    }
-  }
-  
-  // ===== FONCTIONS DU MODAL =====
-
-  // Fonction pour ouvrir le modal avec les détails d'un outil
-  function openToolModal(itemData) {
-    const modal = document.getElementById('tool-modal');
-    const modalBody = document.getElementById('modal-body');
-    
-    if (!modal || !modalBody) {
-      console.error("Éléments du modal non trouvés");
-      return;
-    }
-    
-    // Construire le contenu du modal
-    let content = `
-      <div class="modal-header">
-        ${itemData.imagebf_image ? 
-          `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre}" class="modal-logo">` : 
-          `<img src="https://via.placeholder.com/150?text=Logo" alt="Logo par défaut" class="modal-logo">`
-        }
-        <h1>${itemData.bf_titre}</h1>
-        <p>${getPlatformType(itemData.listeListeTypeplateforme)}</p>
-      </div>
-    `;
-    
-    // Informations générales
+    // Compatibilité et autres fonctionnalités
     content += `
       <div class="modal-section">
-        <h2>Informations générales</h2>
-        <div class="modal-field">
-          <span class="modal-field-name">Description</span>
-          <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale)}</div>
-        </div>
-        ${itemData.bf_urloutil ? 
-          `<div class="modal-field">
-            <span class="modal-field-name">Site web</span>
-            <div class="modal-field-value"><a href="${itemData.bf_urloutil}" target="_blank">${itemData.bf_urloutil}</a></div>
-          </div>` : ''
-        }
-        <div class="modal-field">
-          <span class="modal-field-name">Structure</span>
-          <div class="modal-field-value">${itemData.bf_nomstructure || 'Non renseigné'}</div>
-        </div>
-        <div class="modal-field">
-          <span class="modal-field-name">Année de mise en ligne</span>
-          <div class="modal-field-value">${getYearFromNumber(itemData.listeListeAnneeDeMiseEnLigne)}</div>
-        </div>
-      </div>
-    `;
+        <h2>Compatibilité avec d'autres outils</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">Synchronisation des stocks</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchronisation')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Système de Caisse</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_systemecaisse')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Terminal de Paiement</div>
+            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_terminal')}</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">Logiciels de comptabilité</div>
+            
     
     // Statistiques
     content += `
@@ -985,286 +917,430 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     `;
     
-    // Compatibilité et autres fonctionnalités
-    content += `
-      <div class="modal-section">
-        <h2>Compatibilité avec d'autres outils</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Synchronisation des stocks</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchronisation')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Système de Caisse</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_systemecaisse')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Terminal de Paiement</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_terminal')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Logiciels de comptabilité</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_logiciel')}</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-section">
-        <h2>Fonctionnalités en cas de vente à plusieurs</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Accès du compte à plusieurs</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_plusieurscomptes')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Synchronisation entre boutiques</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchroboutique')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Commission personnalisée</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_commissionpersonalisee')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Répartition des paiements</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_repartitionpaiements')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Date limite adaptable</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_datelimite')}</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-section">
-        <h2>Fonctionnalités Logistiques</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Options de Clic-&-Collect</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_cliccollect')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Zones de livraisons</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_zonelivraison')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Solutions logistiques</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_solutionlogistique')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Co-livraison</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_colivraison')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Emballage éco-responsable</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_partenairesemballage')}</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-section">
-        <h2>Fonctionnalités de Gestion Commerciale</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Facturation</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_facturation')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Bons de Commande / Livraison</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bonslivraison')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Contractualisation</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_contractualisation')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Réductions clients</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_reduc')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Extraction BDD</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bdd')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Notation clients</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_notation')}</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-section">
-        <h2>Fonctionnalités de Communication</h2>
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-title">Graphisme personnalisé</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_pagepersonnalise')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">URL personnalisée</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_url')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Support SEO</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_seo')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Intégration réseaux sociaux</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_socialnetworks')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Emailing</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_emailing')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Messagerie Instantanée</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_messagerie')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Supports de communication</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_com')}</div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-title">Carte des producteurs</div>
-            <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_carte')}</div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    // Boutons d'action
-    content += `
-      <div class="modal-actions">
-        <a href="${itemData.url || `https://www.oad-venteenligne.org/?${itemData.id_fiche}`}" target="_blank" class="modal-button">
-          Voir la fiche détaillée
-        </a>
-        ${itemData.bf_urloutil ? 
-          `<a href="${itemData.bf_urloutil}" target="_blank" class="modal-button">
-            Visiter le site web
-          </a>` : ''
-        }
-      </div>
-    `;
-    
-    // Insérer le contenu dans le modal
-    modalBody.innerHTML = content;
-    
-    // Afficher le modal
-    modal.style.display = 'block';
-    
-    // Empêcher le défilement du contenu sous-jacent
-    document.body.style.overflow = 'hidden';
-    
-    // Gérer la fermeture du modal
-    const closeModal = () => {
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-      // Supprimer les écouteurs d'événements pour éviter les fuites de mémoire
-      document.removeEventListener('keydown', escapeHandler);
-      window.removeEventListener('click', windowClickHandler);
-    };
-    
-    // Gestionnaire d'événement pour la touche Escape
-    const escapeHandler = (event) => {
-      if (event.key === 'Escape') {
-        closeModal();
-      }
-    };
-    
-    // Gestionnaire d'événement pour les clics sur la fenêtre
-    const windowClickHandler = (event) => {
-      if (event.target === modal) {
-        closeModal();
-      }
-    };
-    
-    // Ajouter les écouteurs d'événements
-    const closeBtn = document.querySelector('.close-modal');
-    if (closeBtn) {
-      closeBtn.onclick = closeModal;
-    }
-    
-    // Ajouter les écouteurs pour les clics à l'extérieur et la touche Escape
-    document.addEventListener('keydown', escapeHandler);
-    window.addEventListener('click', windowClickHandler);
-  }
-
-  // Écoute des changements sur les filtres
-  document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-region, .filter-produit, .filter-support, .filter-modalite, .filter-systeme, .filter-paiement, .filter-compatibilite, .filter-vente-plusieurs, .filter-logistique, .filter-gestion, .filter-communication, .filter-sort').forEach(cb => {
-    cb.addEventListener('change', updateDisplay);
-  });
-  
-  // Écoute des changements dans la barre de recherche (avec debounce)
-  const searchInput = document.querySelector('#search-input');
-  if (searchInput) {
-    let searchTimeout;
-    searchInput.addEventListener('input', function() {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(updateDisplay, 300); // Attendre 300ms après la fin de la saisie
-    });
-  }
-  
-  // Exposer loadData au contexte global pour le bouton de réessai
-  window.loadData = loadData;
-  
-  // Charger les données au démarrage
-  loadData();
-});
-    // Vérifier si des données en cache existent
-    const cachedData = localStorage.getItem('toolsDataCache');
-    const cacheTimestamp = parseInt(localStorage.getItem('toolsDataTimestamp') || '0');
-    const now = Date.now();
-    const oneDayInMs = 24 * 60 * 60 * 1000;
-    
-    // Afficher l'indicateur de chargement
-    const container = document.getElementById("fiches-container");
-    if (!container) {
-      console.error("L'élément 'fiches-container' n'existe pas.");
-      return;
-    }
-    
-    container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des données...</p></div>';
-    
-    // Si le cache est valide (moins d'un jour)
-    if (cachedData && (now - cacheTimestamp) < oneDayInMs) {
-      try {
-        allData = JSON.parse(cachedData);
-        updateDisplay();
-        return;
-      } catch (e) {
-        console.error("Erreur lors de la lecture du cache:", e);
-        // Si erreur, continuer et charger depuis l'API
-      }
-    }
-    
-    // Charger depuis l'API
-    fetch("https://www.oad-venteenligne.org/?api/forms/7/entries")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Erreur réseau: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        allData = Object.values(data);
-        
-        // Mettre en cache
-        try {
-          localStorage.setItem('toolsDataCache', JSON.stringify(allData));
-          localStorage.setItem('toolsDataTimestamp', now.toString());
-        } catch (e) {
-          console.warn("Impossible de mettre en cache les données:", e);
-        }
-        
-        updateDisplay();
-      })
-      .catch(error => {
-        console.error("Erreur lors du chargement des données:", error);
-        
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px;">
-            <h3>Erreur de connexion</h3>
-            <p>Impossible de charger les données. Veuillez vérifier votre connexion et réessayer.</p>
-            <button onclick="loadData()" class="cta-button" style="margin: 20px auto;">Réessayer</button>
-          </div>
-        `;
+    // Ajouter l'écouteur d'événement pour ouvrir le modal
+    const viewDetailsBtn = card.querySelector('.view-details');
+    if (viewDetailsBtn) {
+      viewDetailsBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openToolModal(item.data);
       });
+    }
+    
+    // Ajouter un écouteur sur toute la carte pour ouvrir le modal
+    card.addEventListener('click', function() {
+      openToolModal(item.data);
+    });
+    
+    const container = document.getElementById("fiches-container");
+    if (container) {
+      container.appendChild(card);
+    }
   }
+  
+ // ===== FONCTIONS DU MODAL =====
+
+// Fonction pour ouvrir le modal avec les détails d'un outil
+function openToolModal(itemData) {
+  const modal = document.getElementById('tool-modal');
+  const modalBody = document.getElementById('modal-body');
+  
+  if (!modal || !modalBody) {
+    console.error("Éléments du modal non trouvés");
+    return;
+  }
+  
+  // Construire le contenu du modal
+  let content = `
+    <div class="modal-header">
+      ${itemData.imagebf_image ? 
+        `<img src="https://www.oad-venteenligne.org/cache/vignette_${itemData.imagebf_image}" alt="${itemData.bf_titre}" class="modal-logo">` : 
+        `<img src="https://via.placeholder.com/150?text=Logo" alt="Logo par défaut" class="modal-logo">`
+      }
+      <h1>${itemData.bf_titre}</h1>
+      <p>${getPlatformType(itemData.listeListeTypeplateforme)}</p>
+    </div>
+  `;
+  
+  // Informations générales
+  content += `
+    <div class="modal-section">
+      <h2>Informations générales</h2>
+      <div class="modal-field">
+        <span class="modal-field-name">Description</span>
+        <div class="modal-field-value">${formatTextWithParagraphs(itemData.bf_descriptiongenerale)}</div>
+      </div>
+      ${itemData.bf_urloutil ? 
+        `<div class="modal-field">
+          <span class="modal-field-name">Site web</span>
+          <div class="modal-field-value"><a href="${itemData.bf_urloutil}" target="_blank">${itemData.bf_urloutil}</a></div>
+        </div>` : ''
+      }
+      <div class="modal-field">
+        <span class="modal-field-name">Structure</span>
+        <div class="modal-field-value">${itemData.bf_nomstructure || 'Non renseigné'}</div>
+      </div>
+      <div class="modal-field">
+        <span class="modal-field-name">Année de mise en ligne</span>
+        <div class="modal-field-value">${getYearFromNumber(itemData.listeListeAnneeDeMiseEnLigne)}</div>
+      </div>
+    </div>
+  `;
+  
+  // Statistiques
+  content += `
+    <div class="modal-section">
+      <h2>Chiffres clés</h2>
+      <div class="features-grid">
+        ${itemData.bf_nbretp ? 
+          `<div class="feature-item">
+            <div class="feature-title">Équipe</div>
+            <div class="feature-description">${itemData.bf_nbretp}</div>
+          </div>` : ''
+        }
+        ${itemData.bf_nbr_producteurs ? 
+          `<div class="feature-item">
+            <div class="feature-title">Nombre de producteurs</div>
+            <div class="feature-description">${formatNumber(itemData.bf_nbr_producteurs)}</div>
+          </div>` : ''
+        }
+        ${itemData.bf_nbrclientsactifs ? 
+          `<div class="feature-item">
+            <div class="feature-title">Clients actifs</div>
+            <div class="feature-description">${formatNumber(itemData.bf_nbrclientsactifs)}</div>
+          </div>` : ''
+        }
+        ${itemData.bf_nbrvolume ? 
+          `<div class="feature-item">
+            <div class="feature-title">Volume d'affaires</div>
+            <div class="feature-description">${formatNumber(itemData.bf_nbrvolume)}€</div>
+          </div>` : ''
+        }
+      </div>
+    </div>
+  `;
+  
+  // Échelle géo, produits, types de clients, coût de l'outil, support numérique
+  content += `
+    <div class="modal-section">
+      <h2>Positionnement de l'Outil</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-title">Type d'acheteurs</div>
+          <div class="feature-description">${getClientTypes(itemData.checkboxListeTypeclientid_typeclient)}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Coût</div>
+          <div class="feature-description">${getCostType(itemData.checkboxListeCoutplateformeid_coutplateforme)}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Produits commercialisés</div>
+          <div class="feature-description">
+            ${getProductTypesWithIcons(itemData.checkboxListeProduitcommercialiseid_produitscommercialises)}
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Type de support</div>
+          <div class="feature-description">${getSupportTypes(itemData.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Modalité de vente</div>
+          <div class="feature-description">${getModaliteVente(itemData.checkboxListeModaliteventeid_modalitevente)}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Système de commande</div>
+          <div class="feature-description">${getSystemeCommande(itemData.checkboxListeSystemecommandeid_systemecommande)}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Option de paiement</div>
+          <div class="feature-description">${getOptionPaiement(itemData.checkboxListeOptionpaiementid_optionpaiement)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Compatibilité et autres fonctionnalités
+  content += `
+    <div class="modal-section">
+      <h2>Compatibilité avec d'autres outils</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-title">Synchronisation des stocks</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchronisation')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Système de Caisse</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_systemecaisse')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Terminal de Paiement</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_terminal')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Logiciels de comptabilité</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_logiciel')}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-section">
+      <h2>Fonctionnalités en cas de vente à plusieurs</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-title">Accès du compte à plusieurs</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_plusieurscomptes')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Synchronisation entre boutiques</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchroboutique')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Commission personnalisée</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_commissionpersonalisee')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Répartition des paiements</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_repartitionpaiements')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Date limite adaptable</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_datelimite')}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-section">
+      <h2>Fonctionnalités Logistiques</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-title">Options de Clic-&-Collect</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_cliccollect')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Zones de livraisons</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_zonelivraison')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Solutions logistiques</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_solutionlogistique')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Co-livraison</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_colivraison')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Emballage éco-responsable</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_partenairesemballage')}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-section">
+      <h2>Fonctionnalités de Gestion Commerciale</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-title">Facturation</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_facturation')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Bons de Commande / Livraison</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bonslivraison')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Contractualisation</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_contractualisation')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Réductions clients</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_reduc')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Extraction BDD</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bdd')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Notation clients</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_notation')}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-section">
+      <h2>Fonctionnalités de Communication</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-title">Graphisme personnalisé</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_pagepersonnalise')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">URL personnalisée</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_url')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Support SEO</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_seo')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Intégration réseaux sociaux</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_socialnetworks')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Emailing</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_emailing')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Messagerie Instantanée</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_messagerie')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Supports de communication</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_com')}</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-title">Carte des producteurs</div>
+          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_carte')}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Boutons d'action
+  content += `
+    <div class="modal-actions">
+      <a href="${itemData.url || `https://www.oad-venteenligne.org/?${itemData.id_fiche}`}" target="_blank" class="modal-button">
+        Voir la fiche détaillée
+      </a>
+      ${itemData.bf_urloutil ? 
+        `<a href="${itemData.bf_urloutil}" target="_blank" class="modal-button">
+          Visiter le site web
+        </a>` : ''
+      }
+    </div>
+  `;
+  
+  // Insérer le contenu dans le modal
+  modalBody.innerHTML = content;
+  
+  // Afficher le modal
+  modal.style.display = 'block';
+  
+  // Empêcher le défilement du contenu sous-jacent
+  document.body.style.overflow = 'hidden';
+  
+  // Gérer la fermeture du modal
+  const closeModal = () => {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    // Supprimer les écouteurs d'événements pour éviter les fuites de mémoire
+    document.removeEventListener('keydown', escapeHandler);
+    window.removeEventListener('click', windowClickHandler);
+  };
+  
+  // Gestionnaire d'événement pour la touche Escape
+  const escapeHandler = (event) => {
+    if (event.key === 'Escape') {
+      closeModal();
+    }
+  };
+  
+  // Gestionnaire d'événement pour les clics sur la fenêtre
+  const windowClickHandler = (event) => {
+    if (event.target === modal) {
+      closeModal();
+    }
+  };
+  
+  // Ajouter les écouteurs d'événements
+  const closeBtn = document.querySelector('.close-modal');
+  if (closeBtn) {
+    closeBtn.onclick = closeModal;
+  }
+  
+  // Ajouter les écouteurs pour les clics à l'extérieur et la touche Escape
+  document.addEventListener('keydown', escapeHandler);
+  window.addEventListener('click', windowClickHandler);
+}
+
+// Écoute des changements sur les filtres
+document.querySelectorAll('.filter-platform, .filter-client, .filter-cout, .filter-region, .filter-produit, .filter-support, .filter-modalite, .filter-systeme, .filter-paiement, .filter-compatibilite, .filter-vente-plusieurs, .filter-logistique, .filter-gestion, .filter-communication, .filter-sort').forEach(cb => {
+  cb.addEventListener('change', updateDisplay);
+});
+
+// Écoute des changements dans la barre de recherche (avec debounce)
+const searchInput = document.querySelector('#search-input');
+if (searchInput) {
+  let searchTimeout;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(updateDisplay, 300); // Attendre 300ms après la fin de la saisie
+  });
+}
+
+// Expose loadData pour le bouton de réessai
+window.loadData = loadData;
+
+// Fonction de chargement des données
+function loadData() {
+  // Vérifier si des données en cache existent
+  const cachedData = localStorage.getItem('toolsDataCache');
+  const cacheTimestamp = parseInt(localStorage.getItem('toolsDataTimestamp') || '0');
+  const now = Date.now();
+  const oneDayInMs = 24 * 60 * 60 * 1000;
+  
+  // Afficher l'indicateur de chargement
+  const container = document.getElementById("fiches-container");
+  if (!container) {
+    console.error("L'élément 'fiches-container' n'existe pas.");
+    return;
+  }
+  
+  container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des données...</p></div>';
+  
+  // Si le cache est valide (moins d'un jour)
+  if (cachedData && (now - cacheTimestamp) < oneDayInMs) {
+    try {
+      allData = JSON.parse(cachedData);
+      updateDisplay();
+      return;
+    } catch (e) {
+      console.error("Erreur lors de la lecture du cache:", e);
+      // Si erreur, continuer et charger depuis l'API
+    }
+  }
+  
+  // Charger depuis l'API
+  fetch("https://www.oad-venteenligne.org/?api/forms/7/entries")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Erreur réseau: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      allData = Object.values(data);
+      
+      // Mettre en cache
+      try {
+        localStorage.setItem('toolsDataCache', JSON.stringify(allData));
+        localStorage.setItem('toolsDataTimestamp', now.toString());
+      } catch (e) {
+        console.warn("Impossible de mettre en cache les données:", e);
+      }
+      
+      updateDisplay();
+    })
+    .catch(error => {
+      console.error("Erreur lors du chargement des données:", error);
+      
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <h3>Erreur de connexion</h3>
+          <p>Impossible de charger les données. Veuillez vérifier votre connexion et réessayer.</p>
+          <button onclick="loadData()" class="cta-button" style="margin: 20px auto;">Réessayer</button>
+        </div>
+      `;
+    });
+}
+
+// Charger les données au démarrage
+loadData();
