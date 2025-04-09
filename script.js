@@ -205,7 +205,7 @@ function getFilteredItems() {
   const selectedCommunication = Array.from(document.querySelectorAll('.filter-communication:checked')).map(cb => cb.value);
   
   const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
-  const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
+  const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'relevance';
   
   // Calculer le nombre total de groupes de filtres actifs
   const totalActiveFilters = 
