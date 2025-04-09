@@ -1309,7 +1309,7 @@ function renderCard(item) {
   
  // ===== FONCTIONS DU MODAL =====
 
-// Fonction pour ouvrir le modal avec les détails d'un outil
+// Fonction modifiée pour la génération du modal - filtrage des fonctionnalités "Oui"
 function openToolModal(itemData) {
   const modal = document.getElementById('tool-modal');
   const modalBody = document.getElementById('modal-body');
@@ -1428,150 +1428,83 @@ function openToolModal(itemData) {
     </div>
   `;
   
-  // Compatibilité et autres fonctionnalités
-  content += `
-    <div class="modal-section">
-      <h2>Compatibilité avec d'autres outils</h2>
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-title">Synchronisation des stocks</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchronisation')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Système de Caisse</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_systemecaisse')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Terminal de Paiement</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_terminal')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Logiciels de comptabilité</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_logiciel')}</div>
-        </div>
-      </div>
-    </div>
+  // Fonction utilitaire pour générer une grille de fonctionnalités avec seulement les valeurs "Oui"
+  function generateFeaturesGridOuiOnly(features, title) {
+    // Filtrer pour ne garder que les fonctionnalités avec valeur "Oui"
+    const ouiFeatures = features.filter(feature => itemData[feature.field] === "2");
     
-    <div class="modal-section">
-      <h2>Fonctionnalités en cas de vente à plusieurs</h2>
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-title">Accès du compte à plusieurs</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_plusieurscomptes')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Synchronisation entre boutiques</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_synchroboutique')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Commission personnalisée</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_commissionpersonalisee')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Répartition des paiements</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_repartitionpaiements')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Date limite adaptable</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_datelimite')}</div>
-        </div>
-      </div>
-    </div>
+    // S'il n'y a aucune fonctionnalité "Oui", ne pas afficher la section
+    if (ouiFeatures.length === 0) return '';
     
-    <div class="modal-section">
-      <h2>Fonctionnalités Logistiques</h2>
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-title">Options de Clic-&-Collect</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_cliccollect')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Zones de livraisons</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_zonelivraison')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Solutions logistiques</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_solutionlogistique')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Co-livraison</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_colivraison')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Emballage éco-responsable</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_partenairesemballage')}</div>
-        </div>
-      </div>
-    </div>
+    let html = `
+      <div class="modal-section">
+        <h2>${title}</h2>
+        <div class="features-grid">
+    `;
     
-    <div class="modal-section">
-      <h2>Fonctionnalités de Gestion Commerciale</h2>
-      <div class="features-grid">
+    ouiFeatures.forEach(feature => {
+      html += `
         <div class="feature-item">
-          <div class="feature-title">Facturation</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_facturation')}</div>
+          <div class="feature-title">${feature.label}</div>
         </div>
-        <div class="feature-item">
-          <div class="feature-title">Bons de Commande / Livraison</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bonslivraison')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Contractualisation</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_contractualisation')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Réductions clients</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_reduc')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Extraction BDD</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_bdd')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Notation clients</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_notation')}</div>
-        </div>
-      </div>
-    </div>
+      `;
+    });
     
-    <div class="modal-section">
-      <h2>Fonctionnalités de Communication</h2>
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-title">Graphisme personnalisé</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_pagepersonnalise')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">URL personnalisée</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_url')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Support SEO</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_seo')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Intégration réseaux sociaux</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_socialnetworks')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Emailing</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_emailing')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Messagerie Instantanée</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_messagerie')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Supports de communication</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_com')}</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-title">Carte des producteurs</div>
-          <div class="feature-description">${getOuiNonValue(itemData, 'listeListeOuinonid_carte')}</div>
+    html += `
         </div>
       </div>
-    </div>
-  `;
+    `;
+    
+    return html;
+  }
+  
+  // Compatibilité avec d'autres outils - seulement les "Oui"
+  content += generateFeaturesGridOuiOnly([
+    { label: "Synchronisation des stocks", field: "listeListeOuinonid_synchronisation" },
+    { label: "Système de Caisse", field: "listeListeOuinonid_systemecaisse" },
+    { label: "Terminal de Paiement", field: "listeListeOuinonid_terminal" },
+    { label: "Logiciels de comptabilité", field: "listeListeOuinonid_logiciel" }
+  ], "Compatibilité avec d'autres outils");
+  
+  // Fonctionnalités en cas de vente à plusieurs - seulement les "Oui"
+  content += generateFeaturesGridOuiOnly([
+    { label: "Accès du compte à plusieurs", field: "listeListeOuinonid_plusieurscomptes" },
+    { label: "Synchronisation entre boutiques", field: "listeListeOuinonid_synchroboutique" },
+    { label: "Commission personnalisée par producteur", field: "listeListeOuinonid_commissionpersonalisee" },
+    { label: "Répartition des paiements", field: "listeListeOuinonid_repartitionpaiements" },
+    { label: "Paramétrage adapté à chaque producteur", field: "listeListeOuinonid_datelimite" }
+  ], "Fonctionnalités en cas de vente à plusieurs");
+  
+  // Fonctionnalités Logistiques - seulement les "Oui"
+  content += generateFeaturesGridOuiOnly([
+    { label: "Options de Clic-&-Collect", field: "listeListeOuinonid_cliccollect" },
+    { label: "Paramétrages de zones de livraisons", field: "listeListeOuinonid_zonelivraison" },
+    { label: "Partenariats solutions logistique", field: "listeListeOuinonid_solutionlogistique" },
+    { label: "Système de co-livraison", field: "listeListeOuinonid_colivraison" },
+    { label: "Partenariats emballage éco-responsable", field: "listeListeOuinonid_partenairesemballage" }
+  ], "Fonctionnalités Logistiques");
+  
+  // Fonctionnalités de Gestion Commerciale - seulement les "Oui"
+  content += generateFeaturesGridOuiOnly([
+    { label: "Facturation", field: "listeListeOuinonid_facturation" },
+    { label: "Bons de Commande / Bons de livraison", field: "listeListeOuinonid_bonslivraison" },
+    { label: "Fonctionnalités de contractualisation", field: "listeListeOuinonid_contractualisation" },
+    { label: "Mise en place d'offres ou réductions", field: "listeListeOuinonid_reduc" },
+    { label: "Extraction BDD", field: "listeListeOuinonid_bdd" },
+    { label: "Système de notation par les clients", field: "listeListeOuinonid_notation" }
+  ], "Fonctionnalités de Gestion Commerciale");
+  
+  // Fonctionnalités de Communication - seulement les "Oui"
+  content += generateFeaturesGridOuiOnly([
+    { label: "Graphisme personnalisé", field: "listeListeOuinonid_pagepersonnalise" },
+    { label: "URL personnalisée", field: "listeListeOuinonid_url" },
+    { label: "Support SEO et référencement", field: "listeListeOuinonid_seo" },
+    { label: "Intégration réseaux sociaux", field: "listeListeOuinonid_socialnetworks" },
+    { label: "Emailing et notifications clients", field: "listeListeOuinonid_emailing" },
+    { label: "Messagerie Instantanée", field: "listeListeOuinonid_messagerie" },
+    { label: "Supports de communication", field: "listeListeOuinonid_com" },
+    { label: "Carte des producteurs", field: "listeListeOuinonid_carte" }
+  ], "Fonctionnalités de Communication");
   
   // Boutons d'action
   content += `
