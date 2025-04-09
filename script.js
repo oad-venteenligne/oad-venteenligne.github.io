@@ -182,414 +182,325 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.removeChild(link);
   }
   
-  // Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
-  function getFilteredItems() {
-    // Récupération des critères sélectionnés pour chaque filtre
-    const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
-    const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
-    const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
-    const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
+// Fonction pour obtenir les items filtrés actuels avec leur score de correspondance
+function getFilteredItems() {
+  // Récupération des critères sélectionnés pour chaque filtre
+  const selectedPlatforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+  const selectedClients = Array.from(document.querySelectorAll('.filter-client:checked')).map(cb => cb.value);
+  const selectedCouts = Array.from(document.querySelectorAll('.filter-cout:checked')).map(cb => cb.value);
+  const selectedRegions = Array.from(document.querySelectorAll('.filter-region:checked')).map(cb => cb.value);
+  
+  // Nouveaux filtres
+  const selectedProduits = Array.from(document.querySelectorAll('.filter-produit:checked')).map(cb => cb.value);
+  const selectedSupports = Array.from(document.querySelectorAll('.filter-support:checked')).map(cb => cb.value);
+  const selectedModalites = Array.from(document.querySelectorAll('.filter-modalite:checked')).map(cb => cb.value);
+  const selectedSystemes = Array.from(document.querySelectorAll('.filter-systeme:checked')).map(cb => cb.value);
+  const selectedPaiements = Array.from(document.querySelectorAll('.filter-paiement:checked')).map(cb => cb.value);
+  
+  // Filtres avec valeurs Oui/Non
+  const selectedCompatibilites = Array.from(document.querySelectorAll('.filter-compatibilite:checked')).map(cb => cb.value);
+  const selectedVentePlusieurs = Array.from(document.querySelectorAll('.filter-vente-plusieurs:checked')).map(cb => cb.value);
+  const selectedLogistique = Array.from(document.querySelectorAll('.filter-logistique:checked')).map(cb => cb.value);
+  const selectedGestion = Array.from(document.querySelectorAll('.filter-gestion:checked')).map(cb => cb.value);
+  const selectedCommunication = Array.from(document.querySelectorAll('.filter-communication:checked')).map(cb => cb.value);
+  
+  const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
+  const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
+  
+  // Calculer le nombre total de groupes de filtres actifs
+  const totalActiveFilters = 
+    (selectedPlatforms.length > 0 ? 1 : 0) +
+    (selectedClients.length > 0 ? 1 : 0) +
+    (selectedCouts.length > 0 ? 1 : 0) +
+    (selectedRegions.length > 0 ? 1 : 0) +
+    (selectedProduits.length > 0 ? 1 : 0) +
+    (selectedSupports.length > 0 ? 1 : 0) +
+    (selectedModalites.length > 0 ? 1 : 0) +
+    (selectedSystemes.length > 0 ? 1 : 0) +
+    (selectedPaiements.length > 0 ? 1 : 0) +
+    (selectedCompatibilites.length > 0 ? 1 : 0) +
+    (selectedVentePlusieurs.length > 0 ? 1 : 0) +
+    (selectedLogistique.length > 0 ? 1 : 0) +
+    (selectedGestion.length > 0 ? 1 : 0) +
+    (selectedCommunication.length > 0 ? 1 : 0);
+  
+  // Calculer le nombre total de modalités sélectionnées
+  const totalSelectedModalites = 
+    selectedPlatforms.length + 
+    selectedClients.length + 
+    selectedCouts.length + 
+    selectedRegions.length +
+    selectedProduits.length +
+    selectedSupports.length +
+    selectedModalites.length +
+    selectedSystemes.length +
+    selectedPaiements.length +
+    selectedCompatibilites.length +
+    selectedVentePlusieurs.length +
+    selectedLogistique.length +
+    selectedGestion.length +
+    selectedCommunication.length;
+  
+  // Calculer le score de correspondance pour chaque item
+  const scoredItems = allData.map(item => {
+    let matchScore = 0;
+    let matchesSearch = searchFilter(searchText)(item);
     
-    // Nouveaux filtres
-    const selectedProduits = Array.from(document.querySelectorAll('.filter-produit:checked')).map(cb => cb.value);
-    const selectedSupports = Array.from(document.querySelectorAll('.filter-support:checked')).map(cb => cb.value);
-    const selectedModalites = Array.from(document.querySelectorAll('.filter-modalite:checked')).map(cb => cb.value);
-    const selectedSystemes = Array.from(document.querySelectorAll('.filter-systeme:checked')).map(cb => cb.value);
-    const selectedPaiements = Array.from(document.querySelectorAll('.filter-paiement:checked')).map(cb => cb.value);
-    
-    // Filtres avec valeurs Oui/Non
-    const selectedCompatibilites = Array.from(document.querySelectorAll('.filter-compatibilite:checked')).map(cb => cb.value);
-    const selectedVentePlusieurs = Array.from(document.querySelectorAll('.filter-vente-plusieurs:checked')).map(cb => cb.value);
-    const selectedLogistique = Array.from(document.querySelectorAll('.filter-logistique:checked')).map(cb => cb.value);
-    const selectedGestion = Array.from(document.querySelectorAll('.filter-gestion:checked')).map(cb => cb.value);
-    const selectedCommunication = Array.from(document.querySelectorAll('.filter-communication:checked')).map(cb => cb.value);
-    
-    const searchText = document.querySelector('#search-input')?.value.trim().toLowerCase() || '';
-    const sortBy = Array.from(document.querySelectorAll('.filter-sort')).find(rb => rb.checked)?.value || 'alpha';
-    
-    // Calculer le nombre total de groupes de filtres actifs
-    const totalActiveFilters = 
-      (selectedPlatforms.length > 0 ? 1 : 0) +
-      (selectedClients.length > 0 ? 1 : 0) +
-      (selectedCouts.length > 0 ? 1 : 0) +
-      (selectedRegions.length > 0 ? 1 : 0) +
-      (selectedProduits.length > 0 ? 1 : 0) +
-      (selectedSupports.length > 0 ? 1 : 0) +
-      (selectedModalites.length > 0 ? 1 : 0) +
-      (selectedSystemes.length > 0 ? 1 : 0) +
-      (selectedPaiements.length > 0 ? 1 : 0) +
-      (selectedCompatibilites.length > 0 ? 1 : 0) +
-      (selectedVentePlusieurs.length > 0 ? 1 : 0) +
-      (selectedLogistique.length > 0 ? 1 : 0) +
-      (selectedGestion.length > 0 ? 1 : 0) +
-      (selectedCommunication.length > 0 ? 1 : 0);
-    
-    // Calculer le nombre total de modalités sélectionnées
-    const totalSelectedModalites = 
-      selectedPlatforms.length + 
-      selectedClients.length + 
-      selectedCouts.length + 
-      selectedRegions.length +
-      selectedProduits.length +
-      selectedSupports.length +
-      selectedModalites.length +
-      selectedSystemes.length +
-      selectedPaiements.length +
-      selectedCompatibilites.length +
-      selectedVentePlusieurs.length +
-      selectedLogistique.length +
-      selectedGestion.length +
-      selectedCommunication.length;
-    
-    // Calculer le score de correspondance pour chaque item
-    const scoredItems = allData.map(item => {
-      let matchScore = 0;
-      let matches = true;
-      
-      // Vérifier la correspondance avec le filtre de texte (obligatoire)
-      const matchesSearch = searchFilter(searchText)(item);
-      if (!matchesSearch) {
-        matches = false;
-      }
-      
-      // Calculer les correspondances pour chaque modalité de plateforme
-      if (selectedPlatforms.length > 0) {
-        if (selectedPlatforms.includes(item.listeListeTypeplateforme)) {
-          matchScore++;
-        } else {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour chaque modalité de client
-      if (selectedClients.length > 0) {
-        const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
-        // Compter chaque modalité de client qui correspond
-        const matchingClientsCount = itemClients.filter(client => selectedClients.includes(client)).length;
-        matchScore += matchingClientsCount;
-        
-        // Si aucune modalité de client ne correspond, l'item ne correspond pas
-        if (matchingClientsCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour chaque modalité de coût
-      if (selectedCouts.length > 0) {
-        const itemCosts = (item.checkboxListeCoutplateformeid_coutplateforme || '').split(',').map(s => s.trim());
-        // Compter chaque modalité de coût qui correspond
-        const matchingCostsCount = itemCosts.filter(cost => selectedCouts.includes(cost)).length;
-        matchScore += matchingCostsCount;
-        
-        // Si aucune modalité de coût ne correspond, l'item ne correspond pas
-        if (matchingCostsCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour chaque modalité de région
-      if (selectedRegions.length > 0) {
-        let matchesRegion = false;
-        let matchingRegionsCount = 0;
-        
-        if (item.listeListeOuinonid_echellelocalisation === "1") {
-          // Échelle nationale - correspond à toutes les régions sélectionnées
-          matchesRegion = true;
-          matchingRegionsCount = selectedRegions.length; // Toutes les régions correspondent
-        } else if (item.listeListeOuinonid_echellelocalisation === "2") {
-          // Restriction géographique
-          const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
-          // Compter chaque modalité de région qui correspond
-          matchingRegionsCount = itemRegions.filter(region => selectedRegions.includes(region)).length;
-          matchesRegion = matchingRegionsCount > 0;
-        }
-        
-        matchScore += matchingRegionsCount;
-        if (!matchesRegion) {
-          matches = false;
-        }
-      }
-      
-      // Nouveaux filtres
-      
-      // Calculer les correspondances pour les produits commercialisés
-      if (selectedProduits.length > 0) {
-        const itemProduits = (item.checkboxListeProduitcommercialiseid_produitscommercialises || '').split(',').map(s => s.trim());
-        const matchingProduitsCount = itemProduits.filter(produit => selectedProduits.includes(produit)).length;
-        matchScore += matchingProduitsCount;
-        
-        if (matchingProduitsCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour les types de support
-      if (selectedSupports.length > 0) {
-        const itemSupports = (item.checkboxListe021Typesupportplateformeid_typesupportplateforme || '').split(',').map(s => s.trim());
-        const matchingSupportsCount = itemSupports.filter(support => selectedSupports.includes(support)).length;
-        matchScore += matchingSupportsCount;
-        
-        if (matchingSupportsCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour les modalités de vente
-      if (selectedModalites.length > 0) {
-        const itemModalites = (item.checkboxListeModaliteventeid_modalitevente || '').split(',').map(s => s.trim());
-        const matchingModalitesCount = itemModalites.filter(modalite => selectedModalites.includes(modalite)).length;
-        matchScore += matchingModalitesCount;
-        
-        if (matchingModalitesCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour les systèmes de commande
-      if (selectedSystemes.length > 0) {
-        const itemSystemes = (item.checkboxListeSystemecommandeid_systemecommande || '').split(',').map(s => s.trim());
-        const matchingSystemesCount = itemSystemes.filter(systeme => selectedSystemes.includes(systeme)).length;
-        matchScore += matchingSystemesCount;
-        
-        if (matchingSystemesCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Calculer les correspondances pour les options de paiement
-      if (selectedPaiements.length > 0) {
-        const itemPaiements = (item.checkboxListeOptionpaiementid_optionpaiement || '').split(',').map(s => s.trim());
-        const matchingPaiementsCount = itemPaiements.filter(paiement => selectedPaiements.includes(paiement)).length;
-        matchScore += matchingPaiementsCount;
-        
-        if (matchingPaiementsCount === 0) {
-          matches = false;
-        }
-      }
-      
-      // Pour les filtres Oui/Non, vérifier si l'item correspond à chaque critère sélectionné
-      
-      // Compatibilité avec d'autres outils
-      if (selectedCompatibilites.length > 0) {
-        let matchesCompatibilite = true;
-        let matchingCompatibilitesCount = 0;
-        
-        for (const compatibilite of selectedCompatibilites) {
-          const fieldName = ouiNonFiltres[compatibilite];
-          if (item[fieldName] === "2") { // 2 = Oui
-            matchingCompatibilitesCount++;
-          } else {
-            matchesCompatibilite = false;
-          }
-        }
-        
-        matchScore += matchingCompatibilitesCount;
-        if (!matchesCompatibilite) {
-          matches = false;
-        }
-      }
-      
-      // Fonctionnalités en cas de vente à plusieurs
-      if (selectedVentePlusieurs.length > 0) {
-        let matchesVentePlusieurs = true;
-        let matchingVentePlusieurssCount = 0;
-        
-        for (const ventePlusieurs of selectedVentePlusieurs) {
-          const fieldName = ouiNonFiltres[ventePlusieurs];
-          if (item[fieldName] === "2") { // 2 = Oui
-            matchingVentePlusieurssCount++;
-          } else {
-            matchesVentePlusieurs = false;
-          }
-        }
-        
-        matchScore += matchingVentePlusieurssCount;
-        if (!matchesVentePlusieurs) {
-          matches = false;
-        }
-      }
-      
-      // Fonctionnalités Logistiques
-      if (selectedLogistique.length > 0) {
-        let matchesLogistique = true;
-        let matchingLogistiqueCount = 0;
-        
-        for (const logistique of selectedLogistique) {
-          const fieldName = ouiNonFiltres[logistique];
-          if (item[fieldName] === "2") { // 2 = Oui
-            matchingLogistiqueCount++;
-          } else {
-            matchesLogistique = false;
-          }
-        }
-        
-        matchScore += matchingLogistiqueCount;
-        if (!matchesLogistique) {
-          matches = false;
-        }
-      }
-      
-      // Fonctionnalités de Gestion Commerciale
-      if (selectedGestion.length > 0) {
-        let matchesGestion = true;
-        let matchingGestionCount = 0;
-        
-        for (const gestion of selectedGestion) {
-          const fieldName = ouiNonFiltres[gestion];
-          if (item[fieldName] === "2") { // 2 = Oui
-            matchingGestionCount++;
-          } else {
-            matchesGestion = false;
-          }
-        }
-        
-        matchScore += matchingGestionCount;
-        if (!matchesGestion) {
-          matches = false;
-        }
-      }
-      
-      // Fonctionnalités de Communication
-      if (selectedCommunication.length > 0) {
-        let matchesCommunication = true;
-        let matchingCommunicationCount = 0;
-        
-        for (const communication of selectedCommunication) {
-          const fieldName = ouiNonFiltres[communication];
-          if (item[fieldName] === "2") { // 2 = Oui
-            matchingCommunicationCount++;
-          } else {
-            matchesCommunication = false;
-          }
-        }
-        
-        matchScore += matchingCommunicationCount;
-        if (!matchesCommunication) {
-          matches = false;
-        }
-      }
-      
-// Ne pas inclure les filtres où l'item n'a pas de correspondance
-const activeFilterGroupCount = (
-  (selectedPlatforms.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedClients.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedCouts.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedRegions.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedProduits.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedSupports.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedModalites.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedSystemes.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedPaiements.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedCompatibilites.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedVentePlusieurs.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedLogistique.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedGestion.length > 0 && matchesSearch ? 1 : 0) +
-  (selectedCommunication.length > 0 && matchesSearch ? 1 : 0)
-);
-
-// Calculer le pourcentage seulement si des filtres sont actifs
-const calculatedMatchPercentage = totalSelectedModalites > 0 ? 
-  (matchScore / totalSelectedModalites) * 100 : 100;
-
-return {
-  data: item,
-  matchScore: matchScore,
-  totalModalites: totalSelectedModalites,
-  matches: matches && matchesSearch, // L'élément correspond uniquement si le texte correspond aussi
-  matchPercentage: calculatedMatchPercentage,
-  activeFilterGroupCount: activeFilterGroupCount
-};
-    });
-    
-    // Séparer les éléments correspondants et non correspondants
-    const matchingItems = scoredItems.filter(item => item.matches);
-    const nonMatchingItems = scoredItems.filter(item => !item.matches);
-    
-// Trier les éléments
-let sortedItems;
-
-if (sortBy === 'relevance' && totalActiveFilters > 0) {
-  // Trier par pourcentage de correspondance (décroissant) puis par titre
-  sortedItems = [...matchingItems].sort((a, b) => {
-    // Calculer les pourcentages pour comparer
-    const percentA = a.matchScore / a.totalModalites * 100;
-    const percentB = b.matchScore / b.totalModalites * 100;
-    
-    // Comparer d'abord par pourcentage
-    if (percentB !== percentA) {
-      return percentB - percentA;
+    // Vérifier la correspondance avec le filtre de texte (obligatoire)
+    if (!matchesSearch) {
+      // L'élément ne correspond pas à la recherche textuelle
+      return {
+        data: item,
+        matchScore: 0,
+        totalModalites: totalSelectedModalites,
+        matchPercentage: 0
+      };
     }
     
-    // Si pourcentages égaux, trier par ordre alphabétique
-    return a.data.bf_titre && b.data.bf_titre ? 
-      a.data.bf_titre.localeCompare(b.data.bf_titre) : 
-      !a.data.bf_titre ? 1 : -1;
+    // Calculer les correspondances pour chaque modalité de plateforme
+    if (selectedPlatforms.length > 0) {
+      if (selectedPlatforms.includes(item.listeListeTypeplateforme)) {
+        matchScore++;
+      }
+    }
+    
+    // Calculer les correspondances pour chaque modalité de client
+    if (selectedClients.length > 0) {
+      const itemClients = (item.checkboxListeTypeclientid_typeclient || '').split(',').map(s => s.trim());
+      // Compter chaque modalité de client qui correspond
+      const matchingClientsCount = itemClients.filter(client => selectedClients.includes(client)).length;
+      matchScore += matchingClientsCount;
+    }
+    
+    // Calculer les correspondances pour chaque modalité de coût
+    if (selectedCouts.length > 0) {
+      const itemCosts = (item.checkboxListeCoutplateformeid_coutplateforme || '').split(',').map(s => s.trim());
+      // Compter chaque modalité de coût qui correspond
+      const matchingCostsCount = itemCosts.filter(cost => selectedCouts.includes(cost)).length;
+      matchScore += matchingCostsCount;
+    }
+    
+    // Calculer les correspondances pour chaque modalité de région
+    if (selectedRegions.length > 0) {
+      let matchingRegionsCount = 0;
+      
+      if (item.listeListeOuinonid_echellelocalisation === "1") {
+        // Échelle nationale - correspond à toutes les régions sélectionnées
+        matchingRegionsCount = selectedRegions.length; // Toutes les régions correspondent
+      } else if (item.listeListeOuinonid_echellelocalisation === "2") {
+        // Restriction géographique
+        const itemRegions = (item.checkboxListeRegionsid_listeregions || '').split(',').map(s => s.trim());
+        // Compter chaque modalité de région qui correspond
+        matchingRegionsCount = itemRegions.filter(region => selectedRegions.includes(region)).length;
+      }
+      
+      matchScore += matchingRegionsCount;
+    }
+    
+    // Calculer les correspondances pour les produits commercialisés
+    if (selectedProduits.length > 0) {
+      const itemProduits = (item.checkboxListeProduitcommercialiseid_produitscommercialises || '').split(',').map(s => s.trim());
+      const matchingProduitsCount = itemProduits.filter(produit => selectedProduits.includes(produit)).length;
+      matchScore += matchingProduitsCount;
+    }
+    
+    // Calculer les correspondances pour les types de support
+    if (selectedSupports.length > 0) {
+      const itemSupports = (item.checkboxListe021Typesupportplateformeid_typesupportplateforme || '').split(',').map(s => s.trim());
+      const matchingSupportsCount = itemSupports.filter(support => selectedSupports.includes(support)).length;
+      matchScore += matchingSupportsCount;
+    }
+    
+    // Calculer les correspondances pour les modalités de vente
+    if (selectedModalites.length > 0) {
+      const itemModalites = (item.checkboxListeModaliteventeid_modalitevente || '').split(',').map(s => s.trim());
+      const matchingModalitesCount = itemModalites.filter(modalite => selectedModalites.includes(modalite)).length;
+      matchScore += matchingModalitesCount;
+    }
+    
+    // Calculer les correspondances pour les systèmes de commande
+    if (selectedSystemes.length > 0) {
+      const itemSystemes = (item.checkboxListeSystemecommandeid_systemecommande || '').split(',').map(s => s.trim());
+      const matchingSystemesCount = itemSystemes.filter(systeme => selectedSystemes.includes(systeme)).length;
+      matchScore += matchingSystemesCount;
+    }
+    
+    // Calculer les correspondances pour les options de paiement
+    if (selectedPaiements.length > 0) {
+      const itemPaiements = (item.checkboxListeOptionpaiementid_optionpaiement || '').split(',').map(s => s.trim());
+      const matchingPaiementsCount = itemPaiements.filter(paiement => selectedPaiements.includes(paiement)).length;
+      matchScore += matchingPaiementsCount;
+    }
+    
+    // Pour les filtres Oui/Non, vérifier les correspondances
+    
+    // Compatibilité avec d'autres outils
+    if (selectedCompatibilites.length > 0) {
+      let matchingCompatibilitesCount = 0;
+      
+      for (const compatibilite of selectedCompatibilites) {
+        const fieldName = ouiNonFiltres[compatibilite];
+        if (item[fieldName] === "2") { // 2 = Oui
+          matchingCompatibilitesCount++;
+        }
+      }
+      
+      matchScore += matchingCompatibilitesCount;
+    }
+    
+    // Fonctionnalités en cas de vente à plusieurs
+    if (selectedVentePlusieurs.length > 0) {
+      let matchingVentePlusieurssCount = 0;
+      
+      for (const ventePlusieurs of selectedVentePlusieurs) {
+        const fieldName = ouiNonFiltres[ventePlusieurs];
+        if (item[fieldName] === "2") { // 2 = Oui
+          matchingVentePlusieurssCount++;
+        }
+      }
+      
+      matchScore += matchingVentePlusieurssCount;
+    }
+    
+    // Fonctionnalités Logistiques
+    if (selectedLogistique.length > 0) {
+      let matchingLogistiqueCount = 0;
+      
+      for (const logistique of selectedLogistique) {
+        const fieldName = ouiNonFiltres[logistique];
+        if (item[fieldName] === "2") { // 2 = Oui
+          matchingLogistiqueCount++;
+        }
+      }
+      
+      matchScore += matchingLogistiqueCount;
+    }
+    
+    // Fonctionnalités de Gestion Commerciale
+    if (selectedGestion.length > 0) {
+      let matchingGestionCount = 0;
+      
+      for (const gestion of selectedGestion) {
+        const fieldName = ouiNonFiltres[gestion];
+        if (item[fieldName] === "2") { // 2 = Oui
+          matchingGestionCount++;
+        }
+      }
+      
+      matchScore += matchingGestionCount;
+    }
+    
+    // Fonctionnalités de Communication
+    if (selectedCommunication.length > 0) {
+      let matchingCommunicationCount = 0;
+      
+      for (const communication of selectedCommunication) {
+        const fieldName = ouiNonFiltres[communication];
+        if (item[fieldName] === "2") { // 2 = Oui
+          matchingCommunicationCount++;
+        }
+      }
+      
+      matchScore += matchingCommunicationCount;
+    }
+    
+    // Calculer le pourcentage de correspondance
+    const calculatedMatchPercentage = totalSelectedModalites > 0 ? 
+      (matchScore / totalSelectedModalites) * 100 : 100;
+      
+    return {
+      data: item,
+      matchScore: matchScore,
+      totalModalites: totalSelectedModalites,
+      matchPercentage: calculatedMatchPercentage
+    };
   });
-} else {
-  // Utiliser le tri standard
-  const sortedMatching = sortItems(matchingItems.map(item => item.data), sortBy).map(item => {
-    return scoredItems.find(scored => scored.data === item);
-  });
-  sortedItems = sortedMatching;
+  
+  // Trier les éléments selon le critère choisi
+  let sortedItems;
+  
+  if (sortBy === 'relevance') {
+    // Trier par pourcentage de correspondance (décroissant) puis par titre
+    sortedItems = [...scoredItems].sort((a, b) => {
+      if (b.matchPercentage !== a.matchPercentage) {
+        return b.matchPercentage - a.matchPercentage; // Trier par pourcentage décroissant
+      }
+      return a.data.bf_titre && b.data.bf_titre ? 
+        a.data.bf_titre.localeCompare(b.data.bf_titre) : 
+        !a.data.bf_titre ? 1 : -1; // Puis par ordre alphabétique
+    });
+  } else if (sortBy === 'alpha') {
+    // Trier par ordre alphabétique
+    sortedItems = [...scoredItems].sort((a, b) => {
+      return a.data.bf_titre && b.data.bf_titre ? 
+        a.data.bf_titre.localeCompare(b.data.bf_titre) : 
+        !a.data.bf_titre ? 1 : -1;
+    });
+  } else if (sortBy === 'year') {
+    // Trier par année décroissante
+    sortedItems = [...scoredItems].sort((a, b) => {
+      const yearA = parseInt(a.data.listeListeAnneeDeMiseEnLigne) || 0;
+      const yearB = parseInt(b.data.listeListeAnneeDeMiseEnLigne) || 0;
+      return yearB - yearA; // Plus récent d'abord
+    });
+  }
+  
+  // Filtrer pour ne garder que les éléments qui correspondent à la recherche textuelle
+  const filteredItems = sortedItems.filter(item => searchFilter(searchText)(item.data));
+  
+  return {
+    filteredData: filteredItems,
+    totalActiveFilters: totalActiveFilters
+  };
 }
 
-// Ajouter les éléments non correspondants à la fin, triés alphabétiquement
-const sortedNonMatching = nonMatchingItems.sort((a, b) => 
-  a.data.bf_titre && b.data.bf_titre ? 
-    a.data.bf_titre.localeCompare(b.data.bf_titre) : 
-    !a.data.bf_titre ? 1 : -1
-);
-
-// Combiner les résultats
-const allSortedItems = [...sortedItems, ...sortedNonMatching];
-    
-    return {
-      filteredData: allSortedItems,
-      totalActiveFilters: totalActiveFilters
-    };
+// Fonction de mise à jour de l'affichage des fiches
+function updateDisplay() {
+  const container = document.getElementById("fiches-container");
+  if (!container) {
+    console.error("L'élément 'fiches-container' n'existe pas.");
+    return;
   }
-
-  // Fonction de mise à jour de l'affichage des fiches
-  function updateDisplay() {
-    const container = document.getElementById("fiches-container");
-    if (!container) {
-      console.error("L'élément 'fiches-container' n'existe pas.");
+  
+  // Afficher l'indicateur de chargement
+  container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des résultats...</p></div>';
+  
+  // Utiliser setTimeout pour permettre au DOM de se rafraîchir et montrer le loader
+  setTimeout(() => {
+    // Récupérer les items filtrés et triés avec leurs scores
+    const result = getFilteredItems();
+    const filteredItems = result.filteredData;
+    const totalActiveFilters = result.totalActiveFilters;
+    
+    // Afficher le nombre de résultats correspondants
+    const matchingCount = filteredItems.filter(item => item.matchPercentage > 0).length;
+    updateResultsCount(matchingCount, filteredItems.length);
+    
+    // Vider le conteneur
+    container.innerHTML = '';
+    
+    if (filteredItems.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <h3>Aucun résultat disponible</h3>
+          <p>Essayez de modifier votre recherche.</p>
+        </div>
+      `;
       return;
     }
     
-    container.innerHTML = '';
+    // Critère de tri actuel pour référence
+    const currentSortMethod = document.querySelector('.filter-sort:checked')?.value || 'alpha';
     
-    // Afficher l'indicateur de chargement
-    container.innerHTML = '<div class="loading-container"><div class="loader"></div><p>Chargement des résultats...</p></div>';
-    
-    // Utiliser setTimeout pour permettre au DOM de se rafraîchir et montrer le loader
-    setTimeout(() => {
-      // Récupérer les items filtrés et triés avec leurs scores
-      const result = getFilteredItems();
-      const filteredItems = result.filteredData;
-      const totalActiveFilters = result.totalActiveFilters;
-      
-      // Afficher le nombre de résultats correspondants
-      const matchingCount = filteredItems.filter(item => item.matches).length;
-      updateResultsCount(matchingCount, filteredItems.length);
-      
-      // Vider le conteneur
-      container.innerHTML = '';
-      
-      if (filteredItems.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px;">
-            <h3>Aucun résultat disponible</h3>
-            <p>Essayez de modifier votre recherche.</p>
-          </div>
-        `;
-        return;
+    // Afficher toutes les fiches selon leur pourcentage de correspondance
+    filteredItems.forEach(item => {
+      // Seulement afficher les fiches qui correspondent à la recherche textuelle
+      if (item.matchPercentage > 0 || document.querySelector('#search-input')?.value.trim() === '') {
+        renderCard(item);
       }
-      
-      // Afficher toutes les fiches, correspondantes et non correspondantes
-      filteredItems.forEach(item => renderCard(item));
-    }, 100); // Délai court pour permettre l'affichage du loader
-  }
+    });
+  }, 100); // Délai court pour permettre l'affichage du loader
+}
   
   // Mise à jour du compteur de résultats
   function updateResultsCount(matchingCount, totalCount) {
@@ -816,86 +727,110 @@ const allSortedItems = [...sortedItems, ...sortedNonMatching];
   }
   
   // Fonction pour afficher une carte
-  function renderCard(item) {
-    const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
-    
-    // Préparer les données de la carte
-    const title = item.data.bf_titre || 'Sans titre';
-    const description = item.data.bf_descriptiongenerale ? getFirstSentence(item.data.bf_descriptiongenerale) : 'Description non disponible';
-    const platformType = getPlatformType(item.data.listeListeTypeplateforme);
-    const anneeCreation = getYearFromNumber(item.data.listeListeAnneeDeMiseEnLigne);
-    const typeClients = getClientTypes(item.data.checkboxListeTypeclientid_typeclient);
-    const ficheUrl = `https://www.oad-venteenligne.org/?${item.data.id_fiche}`;
-    const imageUrl = item.data.imagebf_image 
-                    ? `https://www.oad-venteenligne.org/cache/vignette_${item.data.imagebf_image}` 
-                    : 'https://via.placeholder.com/100?text=Logo';
-    
-    // Mettre en surbrillance les termes recherchés
-    const highlightedTitle = highlightText(title, searchTerm);
-    const highlightedDescription = highlightText(description, searchTerm);
+// Fonction pour afficher une carte
+function renderCard(item) {
+  const searchTerm = document.querySelector('#search-input')?.value.trim() || '';
+  
+  // Préparer les données de la carte
+  const title = item.data.bf_titre || 'Sans titre';
+  const description = item.data.bf_descriptiongenerale ? getFirstSentence(item.data.bf_descriptiongenerale) : 'Description non disponible';
+  const platformType = getPlatformType(item.data.listeListeTypeplateforme);
+  const anneeCreation = getYearFromNumber(item.data.listeListeAnneeDeMiseEnLigne);
+  const typeClients = getClientTypes(item.data.checkboxListeTypeclientid_typeclient);
+  const imageUrl = item.data.imagebf_image 
+                  ? `https://www.oad-venteenligne.org/cache/vignette_${item.data.imagebf_image}` 
+                  : 'https://via.placeholder.com/100?text=Logo';
+  
+  // Mettre en surbrillance les termes recherchés
+  const highlightedTitle = highlightText(title, searchTerm);
+  const highlightedDescription = highlightText(description, searchTerm);
 
-    // Définir le style directement si non correspondant
-    const isMatched = item.matches;
-    const unmatchedStyle = !isMatched ? 'filter: grayscale(100%);' : '';
-    const unmatchedBadge = '';
-    
-    // Créer la carte avec structure verticale
-    const card = document.createElement("div");
-    card.className = "tool-card";
-    card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
-    
-    // Appliquer le style directement
-    card.style = unmatchedStyle;
-    
-    card.innerHTML = `
-      ${unmatchedBadge}
-      <div class="card-left" style="${!isMatched ? 'filter: grayscale(100%);' : ''}">
-        <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
-        <div class="tool-category" style="${!isMatched ? 'background-color: #aaa; color: white;' : ''}">${platformType}</div>
+  // Définir le style selon le pourcentage de correspondance
+  const getCardStyle = (percentage) => {
+    if (percentage >= 70) {
+      return {
+        cardStyle: '', // Style normal (vert par défaut)
+        badgeStyle: 'background: #4caf50; color: white;', // Badge vert
+        textColor: '',
+        matchInfoStyle: 'background: #e8f5e9; color: #2e7d32; font-weight: bold;'
+      };
+    } else if (percentage >= 50) {
+      return {
+        cardStyle: 'border-color: #ffc107;', // Bordure jaune
+        badgeStyle: 'background: #ffc107; color: black;', // Badge jaune
+        textColor: '',
+        matchInfoStyle: 'background: #fff8e1; color: #ff8f00; font-weight: bold;'
+      };
+    } else {
+      return {
+        cardStyle: 'filter: grayscale(100%);', // Grisé
+        badgeStyle: 'background: #9e9e9e; color: white;', // Badge gris
+        textColor: 'color: #757575;',
+        matchInfoStyle: 'background: #f5f5f5; color: #757575; font-weight: bold;'
+      };
+    }
+  };
+
+  // Récupérer les styles selon le pourcentage
+  const percentage = item.matchPercentage;
+  const styles = getCardStyle(percentage);
+
+  // Créer la carte avec la nouvelle logique de style
+  const card = document.createElement("div");
+  card.className = "tool-card";
+  card.setAttribute("tabindex", "0"); // Pour améliorer l'accessibilité
+  card.style = styles.cardStyle;
+
+  card.innerHTML = `
+    <div class="card-left">
+      <img src="${imageUrl}" alt="${title}" class="tool-logo" loading="lazy">
+      <div class="tool-category" style="${styles.badgeStyle}">${platformType}</div>
       ${item.totalModalites > 0 
-        ? `<div class="match-info">${item.matchScore} critère${item.matchScore > 1 ? 's' : ''} sur ${item.totalModalites} (${Math.round(item.matchPercentage)}%)</div>`
+        ? `<div class="match-info" style="${styles.matchInfoStyle}">
+            ${Math.round(percentage)}% (${item.matchScore}/${item.totalModalites})
+           </div>`
         : ''
       }
+    </div>
+    <div class="card-right">
+      <h2 class="tool-title" style="${styles.textColor}">${highlightedTitle}</h2>
+      <p class="tool-description" style="${styles.textColor}">${highlightedDescription}</p>
+      <div class="highlight-box">
+        <p><strong>Année de création :</strong> ${anneeCreation}</p>
+        <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
+        <p><strong>Support :</strong> ${getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</p>
+        <p><strong>Produits :</strong> ${getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises)}</p>
+        ${item.data.bf_urloutil 
+          ? `<p><strong>Site web :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil}</a></p>` 
+          : ''
+        }
       </div>
-      <div class="card-right">
-        <h2 class="tool-title" style="${!isMatched ? 'color: #777;' : ''}">${highlightedTitle}</h2>
-        <p class="tool-description" style="${!isMatched ? 'color: #888;' : ''}">${highlightedDescription}</p>
-        <div class="highlight-box" style="${!isMatched ? 'background: #eee; border-left-color: #aaa;' : ''}">
-          <p><strong>Année de création :</strong> ${anneeCreation}</p>
-          <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
-          <p><strong>Support :</strong> ${getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</p>
-          <p><strong>Produits :</strong> ${getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises)}</p>
-          ${item.data.bf_urloutil 
-            ? `<p><strong>Site web :</strong> <a href="${item.data.bf_urloutil}" target="_blank" rel="noopener">${item.data.bf_urloutil}</a></p>` 
-            : ''
-          }
-        </div>
-        <button class="cta-button view-details" style="${!isMatched ? 'background-color: #aaa;' : ''}" 
-          aria-label="Voir les détails de ${title}">
-          Voir les détails
-        </button>
-      </div>
-    `;
-    // Ajouter l'écouteur d'événement pour ouvrir le modal
-    const viewDetailsBtn = card.querySelector('.view-details');
-    if (viewDetailsBtn) {
-      viewDetailsBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openToolModal(item.data);
-      });
-    }
-    
-    // Ajouter un écouteur sur toute la carte pour ouvrir le modal
-    card.addEventListener('click', function() {
+      <button class="cta-button view-details" aria-label="Voir les détails de ${title}">
+        Voir les détails
+      </button>
+    </div>
+  `;
+  
+  // Ajouter l'écouteur d'événement pour ouvrir le modal
+  const viewDetailsBtn = card.querySelector('.view-details');
+  if (viewDetailsBtn) {
+    viewDetailsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       openToolModal(item.data);
     });
-    
-    const container = document.getElementById("fiches-container");
-    if (container) {
-      container.appendChild(card);
-    }
   }
+  
+  // Ajouter un écouteur sur toute la carte pour ouvrir le modal
+  card.addEventListener('click', function() {
+    openToolModal(item.data);
+  });
+  
+  const container = document.getElementById("fiches-container");
+  if (container) {
+    container.appendChild(card);
+  }
+}
   
  // ===== FONCTIONS DU MODAL =====
 
