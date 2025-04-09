@@ -18,6 +18,18 @@
       <!-- Colonne des filtres -->
       <div class="sidebar">
         <div id="filters">
+          <!-- Option de tri -->
+          <div class="filter-header" data-target="filter-sort">
+            <span>Trier par</span>
+            <span>⬇️</span>
+          </div>
+          <div id="filter-sort" class="filter-content">
+            <label><input type="radio" name="sort" value="alpha" class="filter-sort" checked> Ordre alphabétique</label>
+            <label><input type="radio" name="sort" value="year" class="filter-sort"> Année de création</label>
+            <label><input type="radio" name="sort" value="relevance" class="filter-sort"> Pertinence</label>
+          </div>
+
+          
           <!-- Barre de recherche -->
           <div class="search-container">
             <input type="text" id="search-input" class="form-control" placeholder="Rechercher un outil..." />
@@ -49,18 +61,7 @@
               <label><input type="checkbox" value="18" class="filter-region"> Mayotte</label>
             </div>
           </div>
-          
-          <!-- Option de tri -->
-          <div class="filter-header" data-target="filter-sort">
-            <span>Trier par</span>
-            <span>⬇️</span>
-          </div>
-          <div id="filter-sort" class="filter-content">
-            <label><input type="radio" name="sort" value="alpha" class="filter-sort" checked> Ordre alphabétique</label>
-            <label><input type="radio" name="sort" value="year" class="filter-sort"> Année de création</label>
-            <label><input type="radio" name="sort" value="relevance" class="filter-sort"> Pertinence</label>
-          </div>
-          
+                   
           <!-- Filtre "Type d'outil" -->
           <div class="filter-header" data-target="filter-platforms">
             <span>Type d'outil</span>
@@ -230,7 +231,6 @@
       
       <!-- Contenu principal : les fiches -->
       <div class="main-content">
-        <button id="export-button" class="export-button">Exporter les résultats</button>
         <div id="results-stats"></div>
         <div id="fiches-container"></div>
       </div>
