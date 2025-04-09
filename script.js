@@ -1101,7 +1101,6 @@ function renderCard(item) {
   const description = item.data.bf_descriptiongenerale ? getFirstSentence(item.data.bf_descriptiongenerale) : 'Description non disponible';
   const platformType = getPlatformType(item.data.listeListeTypeplateforme);
   const anneeCreation = getYearFromNumber(item.data.listeListeAnneeDeMiseEnLigne);
-  const typeClients = getClientTypes(item.data.checkboxListeTypeclientid_typeclient);
   const imageUrl = item.data.imagebf_image 
                   ? `https://www.oad-venteenligne.org/cache/vignette_${item.data.imagebf_image}` 
                   : 'https://via.placeholder.com/100?text=Logo';
@@ -1255,14 +1254,7 @@ function renderCard(item) {
       <div class="details-container" data-expanded="true">
         <div class="details-toggle">Détails et critères sélectionnés</div>
         <div class="details-list">
-          <div class="details-category">
-            <h4>Informations générales</h4>
-            <p><strong>Type d'acheteurs :</strong> ${typeClients}</p>
-            <p><strong>Support :</strong> ${getSupportTypes(item.data.checkboxListe021Typesupportplateformeid_typesupportplateforme)}</p>
-            <p><strong>Produits :</strong> ${getProductTypes(item.data.checkboxListeProduitcommercialiseid_produitscommercialises)}</p>
-          </div>
-          
-          ${modalitesList ? modalitesList : ''}
+          ${modalitesList ? modalitesList : '<p>Aucun critère sélectionné</p>'}
         </div>
       </div>
       
